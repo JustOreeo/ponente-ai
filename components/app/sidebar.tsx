@@ -1,7 +1,20 @@
 import Link from "next/link";
 import { LogoMarkColumn } from "@/components/logo";
+import type { Profile } from "@/lib/auth/session";
 
 type Item = { label: string; href: string; kbd?: string };
+
+function initialsOf(name: string | null | undefined): string {
+  if (!name) return "—";
+  const parts = name
+    .replace(/^Atty\.?\s+/i, "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (parts.length === 0) return "—";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 const PRIMARY: Item[] = [
   { label: "New chat", href: "/chat", kbd: "⌘K" },
@@ -17,7 +30,11 @@ const TEMPLATES: Item[] = [
   { label: "Verified Petition", href: "/draft/new?t=petition" },
 ];
 
-export function Sidebar() {
+export function Sidebar({ profile }: { profile: Profile }) {
+  const displayName = profile.full_name || "Member";
+  const initials = initialsOf(profile.full_name);
+  const planLine = profile.firm_id ? "Firm member" : "Free · Solo";
+
   return (
     <aside
       className="bg-ink text-parchment flex flex-col"
@@ -83,25 +100,31 @@ export function Sidebar() {
         className="border-t px-3 py-4"
         style={{ borderColor: "rgba(245,239,226,0.1)" }}
       >
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 px-3 py-2 no-underline rounded-[3px] hover:bg-[rgba(245,239,226,0.08)] transition-colors"
-        >
+        <div className="flex items-center gap-3 px-3 py-2 rounded-[3px]">
           <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center font-serif font-medium text-ink text-[13px]">
-            MR
+            {initials}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-[13px] text-parchment truncate">
-              Atty. Maria Reyes
+              {displayName}
             </div>
             <div
               className="font-mono text-[10.5px] tracking-[0.04em] truncate"
               style={{ color: "rgba(245,239,226,0.55)" }}
             >
-              Pro · Solo
+              {planLine}
             </div>
           </div>
-        </Link>
+        </div>
+        <form action="/api/auth/signout" method="post" className="px-3 mt-1">
+          <button
+            type="submit"
+            className="font-mono text-[10.5px] tracking-[0.14em] uppercase bg-transparent border-0 cursor-pointer hover:text-parchment transition-colors"
+            style={{ color: "rgba(245,239,226,0.55)" }}
+          >
+            Sign out
+          </button>
+        </form>
       </div>
     </aside>
   );

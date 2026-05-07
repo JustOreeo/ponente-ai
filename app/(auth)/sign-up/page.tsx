@@ -1,28 +1,31 @@
 import type { Metadata } from "next";
-import { AuthCard, Field } from "@/components/marketing/auth-card";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { OtpForm } from "../_forms/otp-form";
 
 export const metadata: Metadata = {
   title: "Create account — Ponente",
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
   return (
-    <AuthCard
+    <AuthShell
       eyebrow="Start free"
       title={
         <>
-          Create your{" "}
-          <em className="italic text-accent">Ponente</em> account.
+          Create your <em className="italic text-accent">Ponente</em> account.
         </>
       }
       sub="Five free questions per day. No card required. Upgrade when you start drafting."
-      primaryLabel="Send magic link →"
       altPrompt="Already have an account?"
       altLabel="Sign in"
       altHref="/sign-in"
-      extra={
-        <Field label="Your name" placeholder="Atty. Maria Reyes" required />
-      }
-    />
+    >
+      <OtpForm mode="signup" next={next} />
+    </AuthShell>
   );
 }
