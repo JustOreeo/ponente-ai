@@ -1,48 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Topbar } from "@/components/app/topbar";
+import { TEMPLATES } from "@/lib/draft/templates";
 
 export const metadata: Metadata = {
   title: "New draft — Ponente",
 };
-
-const TEMPLATES = [
-  {
-    code: "T01",
-    slug: "demand",
-    name: "Demand Letter",
-    blurb: "Formal demand for payment, performance, or vacation of premises.",
-    minutes: "~8 min",
-  },
-  {
-    code: "T02",
-    slug: "affidavit",
-    name: "Affidavit of Loss",
-    blurb: "License, passport, OR/CR, IDs — with proper notarization clauses.",
-    minutes: "~3 min",
-  },
-  {
-    code: "T03",
-    slug: "nlrc",
-    name: "NLRC Position Paper",
-    blurb: "Labor disputes — illegal dismissal, money claims, regularization.",
-    minutes: "~20 min",
-  },
-  {
-    code: "T04",
-    slug: "mr",
-    name: "Motion for Reconsideration",
-    blurb: "Reframes issues, cites the case the court missed.",
-    minutes: "~12 min",
-  },
-  {
-    code: "T05",
-    slug: "petition",
-    name: "Verified Petition",
-    blurb: "Certiorari, prohibition, mandamus — verification + cert. of NFS.",
-    minutes: "~30 min",
-  },
-];
 
 export default function NewDraftPage() {
   return (
@@ -71,7 +34,7 @@ export default function NewDraftPage() {
           {TEMPLATES.map((t) => (
             <Link
               key={t.code}
-              href="/draft/demo-letter"
+              href={`/draft/${t.slug}`}
               className="bg-surface border border-line p-6 no-underline text-ink hover:border-ink transition-colors group"
             >
               <div className="flex items-center justify-between mb-4">
@@ -79,7 +42,7 @@ export default function NewDraftPage() {
                   {t.code}
                 </span>
                 <span className="font-mono text-[10.5px] text-muted">
-                  {t.minutes}
+                  {t.estimatedMinutes}
                 </span>
               </div>
               <h3
@@ -114,6 +77,24 @@ export default function NewDraftPage() {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Sample */}
+        <div className="mt-10 max-w-[920px] flex items-center justify-between border-t border-line-soft pt-6">
+          <div>
+            <div className="font-mono text-[10.5px] text-muted tracking-[0.18em] uppercase mb-1">
+              Want to see a finished sample?
+            </div>
+            <p className="text-[13px] text-ink-soft m-0">
+              Browse a Demand Letter we drafted against canned facts.
+            </p>
+          </div>
+          <Link
+            href="/draft/demo-letter"
+            className="text-[13px] text-accent no-underline font-mono tracking-[0.04em]"
+          >
+            View sample →
+          </Link>
         </div>
       </div>
     </>

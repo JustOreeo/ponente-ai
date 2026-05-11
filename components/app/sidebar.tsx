@@ -23,11 +23,11 @@ const PRIMARY: Item[] = [
 ];
 
 const TEMPLATES: Item[] = [
-  { label: "Demand Letter", href: "/draft/new?t=demand" },
-  { label: "Affidavit of Loss", href: "/draft/new?t=affidavit" },
-  { label: "NLRC Position Paper", href: "/draft/new?t=nlrc" },
-  { label: "Motion for Reconsideration", href: "/draft/new?t=mr" },
-  { label: "Verified Petition", href: "/draft/new?t=petition" },
+  { label: "Demand Letter", href: "/draft/demand" },
+  { label: "Affidavit of Loss", href: "/draft/affidavit" },
+  { label: "NLRC Position Paper", href: "/draft/nlrc" },
+  { label: "Motion for Reconsideration", href: "/draft/mr" },
+  { label: "Verified Petition", href: "/draft/petition" },
 ];
 
 export function Sidebar({ profile }: { profile: Profile }) {
