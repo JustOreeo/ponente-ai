@@ -7,7 +7,7 @@ import {
   PH_DRAFTING_SYSTEM_PROMPT,
   buildRetrievalContext,
 } from "./prompts";
-import type { AIClient } from "./client";
+import type { AIClient, ChatOptions } from "./client";
 import type {
   ChatMessage,
   Citation,
@@ -44,7 +44,10 @@ function getAnthropic(): Anthropic {
   return new Anthropic({ apiKey });
 }
 
-async function retrieve(query: string): Promise<RetrievedChunk[]> {
+async function retrieve(
+  query: string,
+  practiceAreas?: string[],
+): Promise<RetrievedChunk[]> {
   const queryEmbedding = await embedQuery(query);
   const supabase = createAdminClient();
   // Cast to bypass Supabase's strict rpc inference (the auto-generated types
@@ -63,6 +66,8 @@ async function retrieve(query: string): Promise<RetrievedChunk[]> {
   )("match_legal_chunks", {
     query_embedding: queryEmbedding,
     match_count: RETRIEVAL_TOP_K,
+    practice_area_filter:
+      practiceAreas && practiceAreas.length > 0 ? practiceAreas : null,
   });
   if (error) {
     throw new Error(`Retrieval failed: ${error.message}`);
@@ -181,6 +186,7 @@ function findMatchingChunk(
 
 async function* anthropicChat(
   messages: ChatMessage[],
+  options?: ChatOptions,
 ): AsyncIterable<StreamEvent> {
   if (messages.length === 0) {
     yield { type: "error", message: "No messages provided." };
@@ -195,7 +201,7 @@ async function* anthropicChat(
 
   let chunks: RetrievedChunk[] = [];
   try {
-    chunks = await retrieve(lastUser.content);
+    chunks = await retrieve(lastUser.content, options?.practiceAreas);
   } catch (err) {
     yield {
       type: "error",

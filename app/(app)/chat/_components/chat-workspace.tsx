@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { renderWithCitations } from "@/components/citation-rendered";
 import { readEvents } from "@/lib/ai/stream";
+import { PaywallModal } from "@/components/ui/paywall-modal";
+import { PRACTICE_AREAS } from "@/lib/draft/practice-areas";
 import type { Citation } from "@/lib/ai/events";
 
 type Msg = {
@@ -56,6 +58,11 @@ export function ChatWorkspace() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeSource, setActiveSource] = useState<Citation | null>(null);
+  const [filters, setFilters] = useState<Set<string>>(new Set());
+  const [paywall, setPaywall] = useState<
+    | { open: false }
+    | { open: true; used?: number; limit?: number | "unlimited" }
+  >({ open: false });
   const threadRef = useRef<HTMLDivElement>(null);
 
   // Map tag → Citation for fast lookup when rendering pills.
@@ -68,6 +75,15 @@ export function ChatWorkspace() {
     setSources((prev) =>
       prev.some((s) => s.tag === citation.tag) ? prev : [...prev, citation],
     );
+  }
+
+  function toggleFilter(slug: string) {
+    setFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
   }
 
   // Auto-scroll thread to bottom when new content arrives.
@@ -110,8 +126,16 @@ export function ChatWorkspace() {
             ...thread.map((m) => ({ role: m.role, content: m.body })),
             { role: "user", content: trimmed },
           ],
+          practiceAreas: Array.from(filters),
         }),
       });
+      if (res.status === 429) {
+        const json = await res.json().catch(() => ({}));
+        setPaywall({ open: true, used: json.used, limit: json.limit });
+        // Roll back: drop the empty assistant placeholder we added.
+        setThread((prev) => prev.filter((m) => m.id !== assistantId));
+        return;
+      }
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
         throw new Error(json.error || `HTTP ${res.status}`);
@@ -206,6 +230,40 @@ export function ChatWorkspace() {
               send();
             }}
           >
+            {/* Practice-area filter chips */}
+            <div className="flex flex-wrap items-center gap-1.5 mb-3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted mr-1">
+                Practice
+              </span>
+              {PRACTICE_AREAS.map((p) => {
+                const active = filters.has(p.slug);
+                return (
+                  <button
+                    key={p.slug}
+                    type="button"
+                    onClick={() => toggleFilter(p.slug)}
+                    className={`font-mono text-[10.5px] tracking-[0.04em] px-2 py-[2px] border rounded-[999px] cursor-pointer transition-colors ${
+                      active
+                        ? "bg-ink text-parchment border-ink"
+                        : "bg-transparent text-ink-soft border-line hover:border-ink"
+                    }`}
+                    aria-pressed={active}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+              {filters.size > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setFilters(new Set())}
+                  className="font-mono text-[10px] text-muted hover:text-accent ml-1 bg-transparent border-0 cursor-pointer"
+                >
+                  clear
+                </button>
+              )}
+            </div>
+
             <div className="flex items-center gap-3 bg-parchment border border-line rounded-[2px] px-4 py-[10px] focus-within:border-ink transition-colors">
               <input
                 value={input}
@@ -270,6 +328,14 @@ export function ChatWorkspace() {
           not grounded in the corpus — verify before using.
         </p>
       </aside>
+
+      <PaywallModal
+        open={paywall.open}
+        onClose={() => setPaywall({ open: false })}
+        type="qa"
+        used={paywall.open ? paywall.used : undefined}
+        limit={paywall.open ? paywall.limit : undefined}
+      />
     </div>
   );
 }

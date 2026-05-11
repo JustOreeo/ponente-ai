@@ -2,13 +2,21 @@ import "server-only";
 import type { ChatMessage, DraftFacts, StreamEvent } from "./events";
 import { stubChat, stubDraft } from "./stub";
 
+export type ChatOptions = {
+  /** Optional practice-area filter. When set, retrieval is intersected. */
+  practiceAreas?: string[];
+};
+
 /**
  * AI client interface. The stub implementation lives in stub.ts; the real
  * Anthropic + Voyage + pgvector pipeline lives in anthropic.ts. The factory
  * below picks which one based on whether all required keys are configured.
  */
 export interface AIClient {
-  chat(messages: ChatMessage[]): AsyncIterable<StreamEvent>;
+  chat(
+    messages: ChatMessage[],
+    options?: ChatOptions,
+  ): AsyncIterable<StreamEvent>;
   draft(template: string, facts: DraftFacts): AsyncIterable<StreamEvent>;
 }
 

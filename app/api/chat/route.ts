@@ -6,12 +6,14 @@ import {
   QuotaExceededError,
   UnauthenticatedError,
 } from "@/lib/auth/quota";
+import { sanitizePracticeAreas } from "@/lib/draft/practice-areas";
 import type { ChatMessage } from "@/lib/ai/events";
 
 export const runtime = "nodejs";
 
 type Body = {
   messages?: unknown;
+  practiceAreas?: unknown;
 };
 
 function isChatMessageArray(value: unknown): value is ChatMessage[] {
@@ -70,6 +72,9 @@ export async function POST(request: Request) {
     }
   }
 
+  const practiceAreas = sanitizePracticeAreas(body.practiceAreas);
   const ai = getAIClient();
-  return streamEventsResponse(ai.chat(body.messages));
+  return streamEventsResponse(
+    ai.chat(body.messages, practiceAreas.length > 0 ? { practiceAreas } : undefined),
+  );
 }

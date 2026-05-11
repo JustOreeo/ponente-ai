@@ -169,6 +169,7 @@ function chooseChatSegments(messages: ChatMessage[]): ResponseSegment[] {
 
 export async function* stubChat(
   messages: ChatMessage[],
+  // The stub ignores practiceAreas — only the real adapter scopes retrieval.
 ): AsyncIterable<StreamEvent> {
   const segments = chooseChatSegments(messages);
   yield* emitSegments(segments, { perTokenMs: 12, perCitationMs: 200 });
