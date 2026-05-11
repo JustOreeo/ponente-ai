@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoMarkColumn } from "@/components/logo";
 import type { Profile } from "@/lib/auth/session";
+import type { FirmContext } from "@/lib/auth/firm";
 
 type Item = { label: string; href: string; kbd?: string };
 
@@ -30,10 +31,19 @@ const TEMPLATES: Item[] = [
   { label: "Verified Petition", href: "/draft/petition" },
 ];
 
-export function Sidebar({ profile }: { profile: Profile }) {
+export function Sidebar({
+  profile,
+  firmContext,
+}: {
+  profile: Profile;
+  firmContext: FirmContext | null;
+}) {
   const displayName = profile.full_name || "Member";
   const initials = initialsOf(profile.full_name);
-  const planLine = profile.firm_id ? "Firm member" : "Free · Solo";
+  const isAdmin = firmContext?.role === "admin";
+  const planLine = firmContext
+    ? `${firmContext.firm.name}${isAdmin ? " · admin" : ""}`
+    : "Free · Solo";
 
   return (
     <aside
@@ -92,6 +102,45 @@ export function Sidebar({ profile }: { profile: Profile }) {
           </Link>
         ))}
       </div>
+
+      {/* Admin (firm admins only) */}
+      {isAdmin && (
+        <div className="px-3 py-2">
+          <div
+            className="px-3 py-2 font-mono text-[10px] tracking-[0.16em] uppercase"
+            style={{ color: "rgba(245,239,226,0.45)" }}
+          >
+            Firm
+          </div>
+          <Link
+            href="/admin"
+            className="flex items-center px-3 py-[6px] text-[13px] no-underline rounded-[3px] hover:bg-[rgba(245,239,226,0.08)] transition-colors"
+            style={{ color: "rgba(245,239,226,0.78)" }}
+          >
+            Admin · settings
+          </Link>
+          <Link
+            href="/admin/seats"
+            className="flex items-center px-3 py-[6px] text-[13px] no-underline rounded-[3px] hover:bg-[rgba(245,239,226,0.08)] transition-colors"
+            style={{ color: "rgba(245,239,226,0.78)" }}
+          >
+            Seats
+          </Link>
+        </div>
+      )}
+
+      {/* Solo users get a subtle "Start a firm" prompt */}
+      {!firmContext && (
+        <div className="px-3 py-2">
+          <Link
+            href="/admin"
+            className="flex items-center px-3 py-[6px] text-[13px] no-underline rounded-[3px] hover:bg-[rgba(245,239,226,0.08)] transition-colors"
+            style={{ color: "rgba(245,239,226,0.55)" }}
+          >
+            + Start a firm
+          </Link>
+        </div>
+      )}
 
       <div className="flex-1" />
 
