@@ -12,6 +12,7 @@ type Msg = {
   role: "user" | "assistant";
   ts: string;
   body: string;
+  tagalog?: { open: boolean; body: string; pending: boolean; error?: string };
 };
 
 const INITIAL_THREAD: Msg[] = [
@@ -84,6 +85,75 @@ export function ChatWorkspace() {
       else next.add(slug);
       return next;
     });
+  }
+
+  function patchMsg(id: string, patch: Partial<Msg>) {
+    setThread((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+  }
+
+  function patchTagalog(id: string, patch: Partial<NonNullable<Msg["tagalog"]>>) {
+    setThread((prev) =>
+      prev.map((m) =>
+        m.id === id
+          ? {
+              ...m,
+              tagalog: { open: true, body: "", pending: false, ...m.tagalog, ...patch },
+            }
+          : m,
+      ),
+    );
+  }
+
+  async function explainTagalog(messageId: string, sourceText: string) {
+    if (!sourceText.trim()) return;
+    const existing = thread.find((m) => m.id === messageId)?.tagalog;
+    if (existing?.pending) return;
+
+    // If already loaded, just toggle visibility.
+    if (existing && existing.body && !existing.pending) {
+      patchMsg(messageId, {
+        tagalog: { ...existing, open: !existing.open },
+      });
+      return;
+    }
+
+    patchTagalog(messageId, { body: "", pending: true, error: undefined });
+
+    try {
+      const res = await fetch("/api/chat/explain-tagalog", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text: sourceText }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || `HTTP ${res.status}`);
+      }
+      for await (const event of readEvents(res)) {
+        if (event.type === "text") {
+          setThread((prev) =>
+            prev.map((m) =>
+              m.id === messageId && m.tagalog
+                ? {
+                    ...m,
+                    tagalog: { ...m.tagalog, body: m.tagalog.body + event.delta },
+                  }
+                : m,
+            ),
+          );
+        } else if (event.type === "error") {
+          throw new Error(event.message);
+        }
+      }
+    } catch (err) {
+      patchTagalog(messageId, {
+        pending: false,
+        error: err instanceof Error ? err.message : "Translation failed.",
+      });
+      return;
+    }
+
+    patchTagalog(messageId, { pending: false });
   }
 
   // Auto-scroll thread to bottom when new content arrives.
@@ -211,6 +281,45 @@ export function ChatWorkspace() {
                     <p className="m-0">{m.body}</p>
                   )}
                 </div>
+
+                {/* Tagalog explainer — only on completed assistant messages */}
+                {m.role === "assistant" && m.body && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() => explainTagalog(m.id, m.body)}
+                      disabled={m.tagalog?.pending}
+                      className="font-mono text-[10.5px] tracking-[0.04em] text-muted hover:text-ink border border-line px-2 py-[3px] rounded-[2px] bg-transparent cursor-pointer disabled:opacity-60 transition-colors"
+                    >
+                      {m.tagalog?.pending
+                        ? "Translating…"
+                        : m.tagalog?.body
+                          ? m.tagalog.open
+                            ? "Hide Tagalog"
+                            : "Show Tagalog"
+                          : "Explain in Tagalog"}
+                    </button>
+                    {m.tagalog?.open && (
+                      <div className="mt-3 border-l-2 border-gold pl-4 py-1">
+                        <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-gold mb-2">
+                          Tagalog
+                        </div>
+                        {m.tagalog.body ? (
+                          <div className="font-serif text-[14.5px] text-ink-soft leading-[1.65]">
+                            {renderWithCitations(m.tagalog.body, citationMap, openSource)}
+                          </div>
+                        ) : (
+                          <PendingDots />
+                        )}
+                        {m.tagalog.error && (
+                          <div className="text-[12px] text-accent mt-2">
+                            {m.tagalog.error}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
             {error && (
