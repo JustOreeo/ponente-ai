@@ -24,18 +24,15 @@ const QUOTES: Quote[] = [
 
 export function TrustStrip() {
   return (
-    <section
-      className="border-t border-b border-line-soft bg-surface"
-      style={{ padding: "20px 56px 36px" }}
-    >
+    <section className="border-t border-b border-line-soft bg-surface px-6 sm:px-10 lg:px-14 pt-5 pb-9">
       <div className="text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4 font-mono">
         Used by lawyers at
       </div>
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
         {QUOTES.map((q) => (
           <figure key={q.who} className="m-0">
             <blockquote
-              className="font-serif text-[16px] italic text-ink leading-[1.45] mb-3 m-0"
+              className="font-serif text-[15px] sm:text-[16px] italic text-ink leading-[1.45] mb-3 m-0"
               style={{ textWrap: "pretty" }}
             >
               &ldquo;{q.line}&rdquo;

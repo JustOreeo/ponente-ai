@@ -37,13 +37,13 @@ export default function CitationsPage() {
       />
 
       {/* Citation pill explainer */}
-      <section style={{ padding: "0 56px 88px" }}>
-        <div className="bg-surface border border-line p-12 grid grid-cols-[1fr_1fr] gap-12">
+      <section className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]">
+        <div className="bg-surface border border-line p-6 sm:p-10 lg:p-12 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <div>
             <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
               The citation pill
             </div>
-            <p className="font-serif text-[20px] text-ink leading-[1.55] m-0">
+            <p className="font-serif text-[18px] sm:text-[20px] text-ink leading-[1.55] m-0">
               The Court has consistently held that procedural rules may be
               relaxed in the interest of substantial justice
               <CitationPill>G.R. No. 247429</CitationPill>
@@ -56,7 +56,7 @@ export default function CitationsPage() {
               an output to a source. Ponente&apos;s outputs are full of them.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
             <div>
               <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-accent mb-3">
                 Click
@@ -80,25 +80,25 @@ export default function CitationsPage() {
       </section>
 
       {/* Verified vs unverified */}
-      <section style={{ padding: "0 56px 88px" }}>
+      <section className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]">
         <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
           Verified vs. unverified
         </div>
         <h2
-          className="font-serif text-[36px] font-normal m-0 mb-10"
+          className="font-serif text-[28px] sm:text-[32px] lg:text-[36px] font-normal m-0 mb-8 lg:mb-10"
           style={{ letterSpacing: "-0.015em", lineHeight: 1.05 }}
         >
           Every citation gets a status.
         </h2>
-        <div className="grid grid-cols-2 border border-line">
-          <div className="p-8 border-r border-line">
+        <div className="grid grid-cols-1 md:grid-cols-2 border border-line">
+          <div className="p-6 sm:p-8 border-b md:border-b-0 md:border-r border-line">
             <div className="inline-flex items-center gap-2 mb-4">
               <span className="font-mono text-[11px] text-success">✓</span>
               <span className="font-mono text-[10.5px] tracking-[0.14em] uppercase text-success">
                 Verified
               </span>
             </div>
-            <h3 className="font-serif text-[20px] font-medium m-0 mb-3">
+            <h3 className="font-serif text-[18px] sm:text-[20px] font-medium m-0 mb-3">
               Found in our source corpus.
             </h3>
             <p className="text-[14px] text-ink-soft leading-[1.55] m-0">
@@ -108,14 +108,14 @@ export default function CitationsPage() {
               cite it.
             </p>
           </div>
-          <div className="p-8">
+          <div className="p-6 sm:p-8">
             <div className="inline-flex items-center gap-2 mb-4">
               <span className="font-mono text-[11px] text-accent">!</span>
               <span className="font-mono text-[10.5px] tracking-[0.14em] uppercase text-accent">
                 Unverified
               </span>
             </div>
-            <h3 className="font-serif text-[20px] font-medium m-0 mb-3">
+            <h3 className="font-serif text-[18px] sm:text-[20px] font-medium m-0 mb-3">
               Couldn&apos;t match a source.
             </h3>
             <p className="text-[14px] text-ink-soft leading-[1.55] m-0">
@@ -129,34 +129,39 @@ export default function CitationsPage() {
       </section>
 
       {/* Sources list */}
-      <section id="guide" style={{ padding: "0 56px 88px" }}>
+      <section
+        id="guide"
+        className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]"
+      >
         <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
           The corpus
         </div>
         <h2
-          className="font-serif text-[36px] font-normal m-0 mb-2"
+          className="font-serif text-[28px] sm:text-[32px] lg:text-[36px] font-normal m-0 mb-2"
           style={{ letterSpacing: "-0.015em", lineHeight: 1.05 }}
         >
           What Ponente reads.
         </h2>
-        <p className="text-[14px] text-muted max-w-[640px] mb-10 leading-[1.6]">
+        <p className="text-[14px] text-muted max-w-[640px] mb-8 lg:mb-10 leading-[1.6]">
           Philippine sources only. We re-ingest weekly, hand-verify every new
           decision before it joins the corpus. Volumes shown are end-state
           launch targets — see the changelog for what&apos;s live today.
         </p>
-        <div className="grid grid-cols-2 gap-0 border border-line">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-line">
           {SOURCE_TYPES.map((s, i) => (
             <div
               key={s.key}
-              className={`p-8 ${
-                i % 2 === 0 ? "border-r border-line" : ""
-              } ${i < 2 ? "border-b border-line" : ""}`}
+              className={`p-6 sm:p-8 ${
+                i % 2 === 0 ? "sm:border-r border-line" : ""
+              } ${i < SOURCE_TYPES.length - 1 ? "border-b border-line" : ""} ${
+                i >= SOURCE_TYPES.length - 2 ? "sm:border-b-0" : ""
+              }`}
             >
               <div className="font-mono text-[10.5px] tracking-[0.14em] uppercase text-accent mb-2">
                 {s.label}
               </div>
               <div
-                className="font-serif text-[36px] font-medium mb-2"
+                className="font-serif text-[28px] sm:text-[32px] lg:text-[36px] font-medium mb-2"
                 style={{ letterSpacing: "-0.018em" }}
               >
                 {s.count}
@@ -167,13 +172,10 @@ export default function CitationsPage() {
         </div>
       </section>
 
-      <section
-        className="bg-ink text-parchment"
-        style={{ padding: "72px 56px" }}
-      >
-        <div className="flex items-center justify-between gap-8">
+      <section className="bg-ink text-parchment px-6 py-12 sm:px-10 sm:py-14 lg:px-14 lg:py-[72px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8">
           <h2
-            className="font-serif text-[40px] font-normal m-0 max-w-[640px] text-parchment"
+            className="font-serif text-[28px] sm:text-[34px] lg:text-[40px] font-normal m-0 max-w-[640px] text-parchment"
             style={{ letterSpacing: "-0.018em", lineHeight: 1.08 }}
           >
             We never auto-trust the model.{" "}

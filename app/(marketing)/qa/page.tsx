@@ -46,9 +46,9 @@ function ChatPreview() {
         </span>
       </div>
 
-      <div className="grid grid-cols-[1fr_0.55fr] min-h-[420px]">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_0.55fr] min-h-[420px]">
         {/* Thread */}
-        <div className="px-8 py-7 border-r border-line">
+        <div className="px-5 py-6 sm:px-8 sm:py-7 border-b md:border-b-0 md:border-r border-line">
           {/* User question */}
           <div className="font-mono text-[10.5px] text-muted tracking-[0.14em] uppercase mb-2">
             You · 14:02
@@ -165,7 +165,7 @@ export default function QAPage() {
         }
       />
 
-      <section style={{ padding: "0 56px 88px" }}>
+      <section className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]">
         <ChatPreview />
       </section>
 
@@ -175,13 +175,10 @@ export default function QAPage() {
         items={BENEFITS}
       />
 
-      <section
-        className="bg-ink text-parchment"
-        style={{ padding: "72px 56px" }}
-      >
-        <div className="flex items-center justify-between gap-8">
+      <section className="bg-ink text-parchment px-6 py-12 sm:px-10 sm:py-14 lg:px-14 lg:py-[72px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8">
           <h2
-            className="font-serif text-[40px] font-normal m-0 max-w-[640px] text-parchment"
+            className="font-serif text-[28px] sm:text-[34px] lg:text-[40px] font-normal m-0 max-w-[640px] text-parchment"
             style={{ letterSpacing: "-0.018em", lineHeight: 1.08 }}
           >
             Five free questions per day.{" "}

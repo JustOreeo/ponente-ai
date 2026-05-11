@@ -69,8 +69,11 @@ export default function ForFirmsPage() {
       />
 
       {/* SSO + admin block */}
-      <section id="sso" style={{ padding: "88px 56px 72px" }}>
-        <div className="grid grid-cols-2 gap-12 border-t border-line pt-14">
+      <section
+        id="sso"
+        className="px-6 pt-14 pb-12 sm:px-10 sm:pt-20 sm:pb-16 lg:px-14 lg:pt-[88px] lg:pb-[72px]"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 border-t border-line pt-10 lg:pt-14">
           <div>
             <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
               Sign-on
@@ -125,16 +128,18 @@ export default function ForFirmsPage() {
       </section>
 
       {/* Pricing card spotlight */}
-      <section style={{ padding: "0 56px 88px" }}>
+      <section className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]">
         <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
           Pricing
         </div>
         <h2
-          className="font-serif text-[36px] font-normal m-0 mb-10"
+          className="font-serif text-[28px] sm:text-[32px] lg:text-[36px] font-normal m-0 mb-8 lg:mb-10"
           style={{ letterSpacing: "-0.015em" }}
         >
           Small Firm — {smallFirmTier.price}{" "}
-          <span className="text-muted text-[20px]">{smallFirmTier.sub}</span>
+          <span className="text-muted text-[18px] sm:text-[20px]">
+            {smallFirmTier.sub}
+          </span>
         </h2>
         <PricingGrid />
         <p className="mt-4 text-[13px] text-muted">
@@ -148,20 +153,23 @@ export default function ForFirmsPage() {
       </section>
 
       {/* Onboarding section */}
-      <section id="onboarding" style={{ padding: "0 56px 88px" }}>
-        <div className="grid grid-cols-[1fr_2fr] gap-14 border-t border-line pt-14">
+      <section
+        id="onboarding"
+        className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 lg:gap-14 border-t border-line pt-10 lg:pt-14">
           <div>
             <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
               Onboarding
             </div>
             <h2
-              className="font-serif text-[32px] font-normal m-0"
+              className="font-serif text-[26px] sm:text-[30px] lg:text-[32px] font-normal m-0"
               style={{ letterSpacing: "-0.015em", lineHeight: 1.1 }}
             >
               We set you up in a week.
             </h2>
           </div>
-          <div className="text-[15px] text-ink-soft leading-[1.65]">
+          <div className="text-[14.5px] sm:text-[15px] text-ink-soft leading-[1.65]">
             <p className="m-0 mb-4">
               A single onboarding call with the founders. We provision the
               firm account, connect SSO, import your first batch of facts and
@@ -176,13 +184,10 @@ export default function ForFirmsPage() {
         </div>
       </section>
 
-      <section
-        className="bg-ink text-parchment"
-        style={{ padding: "72px 56px" }}
-      >
-        <div className="flex items-center justify-between gap-8">
+      <section className="bg-ink text-parchment px-6 py-12 sm:px-10 sm:py-14 lg:px-14 lg:py-[72px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8">
           <h2
-            className="font-serif text-[40px] font-normal m-0 max-w-[640px] text-parchment"
+            className="font-serif text-[28px] sm:text-[34px] lg:text-[40px] font-normal m-0 max-w-[640px] text-parchment"
             style={{ letterSpacing: "-0.018em", lineHeight: 1.08 }}
           >
             Outfit your firm with{" "}

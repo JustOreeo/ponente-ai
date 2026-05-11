@@ -93,7 +93,7 @@ export default function DraftingPage() {
       />
 
       {/* Live preview */}
-      <section style={{ padding: "0 56px 88px" }}>
+      <section className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]">
         <DraftingPreview />
         <p className="mt-4 text-[12px] text-muted italic">
           Verify with the source decision before relying on this in pleadings.
@@ -107,12 +107,15 @@ export default function DraftingPage() {
       />
 
       {/* Templates list */}
-      <section id="templates" style={{ padding: "88px 56px 72px" }}>
+      <section
+        id="templates"
+        className="px-6 pt-14 pb-12 sm:px-10 sm:pt-20 sm:pb-16 lg:px-14 lg:pt-[88px] lg:pb-[72px]"
+      >
         <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
           Templates · 5 at launch
         </div>
         <h2
-          className="font-serif text-[36px] font-normal m-0 mb-10"
+          className="font-serif text-[28px] sm:text-[32px] lg:text-[36px] font-normal m-0 mb-8 lg:mb-10"
           style={{ letterSpacing: "-0.015em", lineHeight: 1.05 }}
         >
           Pick what you actually file.
@@ -121,26 +124,26 @@ export default function DraftingPage() {
           {TEMPLATES.map((t) => (
             <article
               key={t.code}
-              className="grid grid-cols-[100px_1fr_220px] gap-10 py-8 border-b border-line-soft items-baseline"
+              className="grid grid-cols-[60px_1fr] sm:grid-cols-[80px_1fr] md:grid-cols-[100px_1fr_220px] gap-x-6 sm:gap-x-10 gap-y-2 py-6 sm:py-8 border-b border-line-soft items-baseline"
             >
               <div className="font-mono text-[10.5px] text-accent tracking-[0.18em] uppercase">
                 {t.code}
               </div>
               <div>
                 <h3
-                  className="font-serif text-[24px] font-medium m-0 mb-2"
+                  className="font-serif text-[20px] sm:text-[22px] lg:text-[24px] font-medium m-0 mb-2"
                   style={{ letterSpacing: "-0.012em" }}
                 >
                   {t.name}
                 </h3>
                 <p
-                  className="text-[14.5px] text-ink-soft m-0 max-w-[640px]"
+                  className="text-[14px] sm:text-[14.5px] text-ink-soft m-0 max-w-[640px]"
                   style={{ lineHeight: 1.55, textWrap: "pretty" }}
                 >
                   {t.blurb}
                 </p>
               </div>
-              <div className="text-[12px] text-muted font-mono leading-[1.5]">
+              <div className="md:text-right text-[12px] text-muted font-mono leading-[1.5] col-span-2 md:col-span-1">
                 {t.typical}
               </div>
             </article>
@@ -153,13 +156,10 @@ export default function DraftingPage() {
       </section>
 
       {/* Bottom CTA */}
-      <section
-        className="bg-ink text-parchment"
-        style={{ padding: "72px 56px" }}
-      >
-        <div className="flex items-center justify-between gap-8">
+      <section className="bg-ink text-parchment px-6 py-12 sm:px-10 sm:py-14 lg:px-14 lg:py-[72px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-8">
           <h2
-            className="font-serif text-[40px] font-normal m-0 max-w-[640px] text-parchment"
+            className="font-serif text-[28px] sm:text-[34px] lg:text-[40px] font-normal m-0 max-w-[640px] text-parchment"
             style={{ letterSpacing: "-0.018em", lineHeight: 1.08 }}
           >
             Other tools answer.{" "}

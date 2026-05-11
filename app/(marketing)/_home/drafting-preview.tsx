@@ -18,7 +18,7 @@ const CITATIONS = [
 
 /**
  * Hero artifact — a drafting preview window with the document body on
- * the left and a citation panel on the right.
+ * the left and a citation panel on the right (stacks on mobile).
  */
 export function DraftingPreview() {
   return (
@@ -27,24 +27,19 @@ export function DraftingPreview() {
       style={{ boxShadow: "0 24px 60px #1a243814, 0 1px 0 #fff inset" }}
     >
       {/* Doc header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-parchment">
-        <div className="flex items-center gap-2 font-mono text-[11px] text-muted tracking-[0.06em]">
-          <span className="w-[6px] h-[6px] rounded-full bg-accent" />
-          DEMAND LETTER · v3 · drafting
+      <div className="flex items-center justify-between px-3 py-3 sm:px-4 border-b border-line bg-parchment gap-2">
+        <div className="flex items-center gap-2 font-mono text-[10.5px] sm:text-[11px] text-muted tracking-[0.06em]">
+          <span className="w-[6px] h-[6px] rounded-full bg-accent shrink-0" />
+          <span className="truncate">DEMAND LETTER · v3 · drafting</span>
         </div>
-        <div className="flex gap-[6px]">
-          <span className="font-mono text-[10px] px-2 py-[3px] bg-success text-parchment tracking-[0.08em]">
-            3 SOURCES
-          </span>
-        </div>
+        <span className="font-mono text-[10px] px-2 py-[3px] bg-success text-parchment tracking-[0.08em] shrink-0">
+          3 SOURCES
+        </span>
       </div>
 
-      <div
-        className="grid min-h-[380px]"
-        style={{ gridTemplateColumns: "1fr 0.55fr" }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_0.55fr] min-h-[380px]">
         {/* Doc body */}
-        <div className="px-8 py-7 border-r border-line font-serif text-[14px] leading-[1.65] text-ink">
+        <div className="px-5 py-6 sm:px-8 sm:py-7 border-b md:border-b-0 md:border-r border-line font-serif text-[14px] leading-[1.65] text-ink">
           <div className="text-[11px] tracking-[0.14em] uppercase text-muted mb-2 font-sans">
             Re: Demand for Payment
           </div>
@@ -72,14 +67,14 @@ export function DraftingPreview() {
         </div>
 
         {/* Citations panel */}
-        <div className="px-[18px] py-5 bg-parchment">
+        <div className="px-4 py-4 sm:px-[18px] sm:py-5 bg-parchment">
           <div className="text-[10.5px] tracking-[0.16em] uppercase text-muted mb-3 font-mono">
             Citations
           </div>
           {CITATIONS.map((c) => (
             <div
               key={c.tag}
-              className="border-t border-line-soft py-3"
+              className="border-t border-line-soft py-3 first:border-t-0 md:first:border-t"
             >
               <div className="inline-flex items-center gap-[5px] bg-surface-alt border border-line px-2 py-[1px] font-mono text-[10.5px] text-ink mb-[6px]">
                 <span className="w-1 h-1 rounded-full bg-accent" />
@@ -97,7 +92,7 @@ export function DraftingPreview() {
       </div>
 
       {/* Doc footer */}
-      <div className="px-4 py-[10px] border-t border-line bg-parchment flex items-center justify-between text-[11.5px]">
+      <div className="px-3 py-[10px] sm:px-4 border-t border-line bg-parchment flex flex-wrap items-center justify-between gap-2 text-[11.5px]">
         <span className="text-muted italic">
           Verify with the source decision before relying on this in pleadings.
         </span>

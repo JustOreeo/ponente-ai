@@ -1,10 +1,7 @@
 export function FounderNote() {
   return (
-    <section style={{ padding: "0 56px 88px" }}>
-      <div
-        className="grid items-start border-t border-line pt-14"
-        style={{ gridTemplateColumns: "1fr 2.4fr", gap: 56 }}
-      >
+    <section className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[88px]">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.4fr] items-start gap-8 lg:gap-14 border-t border-line pt-10 lg:pt-14">
         <div>
           <div className="w-16 h-16 bg-surface-alt border border-line rounded-full mb-[14px]" />
           <div className="font-serif text-[18px] font-medium">
@@ -15,7 +12,7 @@ export function FounderNote() {
           </div>
         </div>
         <div
-          className="font-serif text-[19px] text-ink-soft"
+          className="font-serif text-[17px] sm:text-[19px] text-ink-soft"
           style={{ lineHeight: 1.55, textWrap: "pretty" }}
         >
           We&apos;ve spent the last three years running a legal AI in

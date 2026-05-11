@@ -39,8 +39,8 @@ export default function ContactPage() {
         sub="We're a small group, mostly in Manila, sometimes in Luxembourg. Email gets through fastest. We answer every message that's not a sales pitch."
       />
 
-      <section style={{ padding: "0 56px 72px" }}>
-        <div className="grid grid-cols-[1fr_1fr] gap-12 border-t border-line pt-14">
+      <section className="px-6 pb-12 sm:px-10 sm:pb-16 lg:px-14 lg:pb-[72px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 border-t border-line pt-10 lg:pt-14">
           {/* Channels */}
           <div>
             <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
@@ -50,7 +50,7 @@ export default function ContactPage() {
               {CONTACTS.map((c) => (
                 <div
                   key={c.label}
-                  className="grid grid-cols-[140px_1fr] gap-6 py-5 border-b border-line-soft items-baseline"
+                  className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-2 sm:gap-6 py-5 border-b border-line-soft sm:items-baseline"
                 >
                   <div className="font-mono text-[10.5px] tracking-[0.14em] uppercase text-muted">
                     {c.label}
@@ -58,7 +58,7 @@ export default function ContactPage() {
                   <div>
                     <a
                       href={`mailto:${c.detail}`}
-                      className="font-serif text-[20px] text-ink no-underline hover:text-accent"
+                      className="font-serif text-[18px] sm:text-[20px] text-ink no-underline hover:text-accent break-all"
                     >
                       {c.detail}
                     </a>
@@ -73,7 +73,7 @@ export default function ContactPage() {
 
           {/* Form */}
           <form
-            className="bg-surface border border-line p-8"
+            className="bg-surface border border-line p-6 sm:p-8"
             action="/contact"
             method="get"
           >
@@ -111,8 +111,8 @@ export default function ContactPage() {
       </section>
 
       {/* Office card */}
-      <section style={{ padding: "0 56px 96px" }}>
-        <div className="bg-ink text-parchment p-12 grid grid-cols-[1fr_1fr] gap-12">
+      <section className="px-6 pb-16 sm:px-10 sm:pb-20 lg:px-14 lg:pb-24">
+        <div className="bg-ink text-parchment p-8 sm:p-10 lg:p-12 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <div>
             <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-gold mb-4">
               Office
