@@ -139,9 +139,47 @@ export type Database = {
         }>;
         Relationships: [];
       };
+      firm_invites: {
+        Row: {
+          id: string;
+          firm_id: string;
+          email: string;
+          role: "admin" | "member";
+          token: string;
+          expires_at: string;
+          accepted_at: string | null;
+          accepted_by: string | null;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          firm_id: string;
+          email: string;
+          role?: "admin" | "member";
+          token?: string;
+          expires_at?: string;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_by: string;
+        };
+        Update: Partial<{
+          role: "admin" | "member";
+          accepted_at: string | null;
+          accepted_by: string | null;
+        }>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
+      is_firm_admin: {
+        Args: {
+          check_firm_id: string;
+          check_user_id: string;
+        };
+        Returns: boolean;
+      };
       match_legal_chunks: {
         Args: {
           query_embedding: number[];
