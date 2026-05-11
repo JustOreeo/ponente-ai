@@ -55,7 +55,20 @@ export function ChatWorkspace() {
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeSource, setActiveSource] = useState<Citation | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
+
+  // Map tag → Citation for fast lookup when rendering pills.
+  const citationMap = new Map<string, Citation>();
+  for (const s of sources) citationMap.set(s.tag, s);
+
+  function openSource(citation: Citation) {
+    setActiveSource(citation);
+    // Add to side panel if not already there.
+    setSources((prev) =>
+      prev.some((s) => s.tag === citation.tag) ? prev : [...prev, citation],
+    );
+  }
 
   // Auto-scroll thread to bottom when new content arrives.
   useEffect(() => {
@@ -166,7 +179,7 @@ export function ChatWorkspace() {
                 >
                   {m.role === "assistant" ? (
                     m.body ? (
-                      renderWithCitations(m.body)
+                      renderWithCitations(m.body, citationMap, openSource)
                     ) : (
                       <PendingDots />
                     )
@@ -221,27 +234,40 @@ export function ChatWorkspace() {
       {/* Citation panel */}
       <aside className="bg-surface px-5 py-6 overflow-auto">
         <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
-          Sources · {sources.length} {sources.length === 1 ? "verified" : "verified"}
+          Sources · {sources.filter((s) => s.status === "verified").length} verified
+          {sources.some((s) => s.status === "unverified") &&
+            ` · ${sources.filter((s) => s.status === "unverified").length} unverified`}
         </div>
-        {sources.map((s) => (
-          <div
-            key={s.tag}
-            className="border-t border-line-soft py-3 cursor-pointer"
-          >
-            <div className="inline-flex items-center gap-[5px] bg-surface-alt border border-line px-2 py-[1px] font-mono text-[10.5px] text-ink mb-[6px]">
-              <span className="w-1 h-1 rounded-full bg-accent" />
-              {s.tag}
-            </div>
-            <div className="font-serif italic text-[13px] text-ink leading-[1.4]">
-              {s.name}
-            </div>
-            <div className="text-[10.5px] text-muted font-mono mt-[2px]">
-              {s.meta}
-            </div>
-          </div>
-        ))}
+        {sources.map((s) => {
+          const isUnverified = s.status === "unverified";
+          const isActive = activeSource?.tag === s.tag;
+          return (
+            <button
+              key={s.tag}
+              type="button"
+              onClick={() => setActiveSource(s)}
+              className={`block w-full text-left border-t py-3 appearance-none bg-transparent border-l-0 border-r-0 border-b-0 ${isActive ? "border-accent" : "border-line-soft"} cursor-pointer hover:bg-parchment/40 transition-colors`}
+            >
+              <div
+                className={`inline-flex items-center gap-[5px] bg-surface-alt border ${isUnverified ? "border-dashed border-muted" : "border-line"} px-2 py-[1px] font-mono text-[10.5px] text-ink mb-[6px]`}
+              >
+                <span
+                  className={`w-1 h-1 rounded-full ${isUnverified ? "bg-muted" : "bg-accent"}`}
+                />
+                {s.tag}
+              </div>
+              <div className="font-serif italic text-[13px] text-ink leading-[1.4]">
+                {s.name}
+              </div>
+              <div className={`text-[10.5px] font-mono mt-[2px] ${isUnverified ? "text-accent" : "text-muted"}`}>
+                {s.meta}
+              </div>
+            </button>
+          );
+        })}
         <p className="mt-6 text-[11.5px] text-muted leading-[1.5]">
-          Click a source to open the full decision.
+          Click a source to open the full decision. Dashed pills mark citations
+          not grounded in the corpus — verify before using.
         </p>
       </aside>
     </div>

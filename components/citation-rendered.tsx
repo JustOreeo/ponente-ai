@@ -1,22 +1,33 @@
 import type { ReactNode } from "react";
 import { CitationPill } from "@/components/citation-pill";
+import type { Citation } from "@/lib/ai/events";
 
 /**
  * Render a string that may contain `[[tag]]` markers — replacing each with a
  * <CitationPill>. Splits on \n\n into paragraphs.
  *
- * Used for both chat assistant messages and streamed draft bodies.
+ * If a `citationMap` is supplied (built from the streamed citation events),
+ * each pill picks up its verified/unverified status from the map. Tags not
+ * in the map render as verified (legacy default for static marketing copy).
  */
-export function renderWithCitations(text: string): ReactNode {
+export function renderWithCitations(
+  text: string,
+  citationMap?: Map<string, Citation>,
+  onCitationClick?: (citation: Citation) => void,
+): ReactNode {
   const paragraphs = text.split(/\n\n+/);
   return paragraphs.map((para, i) => (
     <p key={i} className="m-0 mb-3 last:mb-0">
-      {renderParagraph(para)}
+      {renderParagraph(para, citationMap, onCitationClick)}
     </p>
   ));
 }
 
-function renderParagraph(text: string): ReactNode[] {
+function renderParagraph(
+  text: string,
+  citationMap?: Map<string, Citation>,
+  onCitationClick?: (citation: Citation) => void,
+): ReactNode[] {
   const parts: ReactNode[] = [];
   const regex = /\[\[(.+?)\]\]/g;
   let last = 0;
@@ -27,7 +38,18 @@ function renderParagraph(text: string): ReactNode[] {
     if (match.index > last) {
       parts.push(renderInline(text.slice(last, match.index), key++));
     }
-    parts.push(<CitationPill key={`c-${key++}`}>{match[1]}</CitationPill>);
+    const tag = match[1];
+    const citation = citationMap?.get(tag);
+    parts.push(
+      <CitationPill
+        key={`c-${key++}`}
+        status={citation?.status ?? "verified"}
+        onClick={citation && onCitationClick ? () => onCitationClick(citation) : undefined}
+        title={citation ? `${citation.name} · ${citation.meta}` : undefined}
+      >
+        {tag}
+      </CitationPill>,
+    );
     last = match.index + match[0].length;
   }
   if (last < text.length) {
