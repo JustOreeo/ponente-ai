@@ -3,9 +3,9 @@ import type { ChatMessage, DraftFacts, StreamEvent } from "./events";
 import { stubChat, stubDraft } from "./stub";
 
 /**
- * AI client interface. The stub implementation lives in stub.ts; once
- * Anthropic creds are wired, swap in a real adapter that translates Claude's
- * stream events into our StreamEvent shape.
+ * AI client interface. The stub implementation lives in stub.ts; the real
+ * Anthropic + Voyage + pgvector pipeline lives in anthropic.ts. The factory
+ * below picks which one based on whether all required keys are configured.
  */
 export interface AIClient {
   chat(messages: ChatMessage[]): AsyncIterable<StreamEvent>;
@@ -17,13 +17,34 @@ const STUB: AIClient = {
   draft: stubDraft,
 };
 
+let cachedRealClient: AIClient | null = null;
+
+function hasRealKeys(): boolean {
+  return Boolean(
+    process.env.ANTHROPIC_API_KEY &&
+      process.env.VOYAGE_API_KEY &&
+      process.env.SUPABASE_SERVICE_ROLE_KEY &&
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+  );
+}
+
 /**
- * Returns the configured AI client. Reads `ANTHROPIC_API_KEY` to decide:
- * if absent, returns the stub. Phase 1b will add the real Anthropic adapter
- * here.
+ * Returns the configured AI client.
+ *
+ * If all required keys are present (Anthropic + Voyage + Supabase service
+ * role + Supabase URL), returns the real Claude-backed adapter that retrieves
+ * over pgvector. Otherwise falls back to the stub so dev iteration on the UI
+ * still works without secrets.
  */
 export function getAIClient(): AIClient {
-  // Real Anthropic adapter wires in later — Phase 1b/2.
-  // For now everything routes through the stub.
-  return STUB;
+  if (!hasRealKeys()) return STUB;
+  if (cachedRealClient) return cachedRealClient;
+  // Lazy-load to avoid pulling the Anthropic SDK + Supabase admin client into
+  // the bundle when the stub is sufficient.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { anthropicClient } = require("./anthropic") as {
+    anthropicClient: AIClient;
+  };
+  cachedRealClient = anthropicClient;
+  return anthropicClient;
 }
