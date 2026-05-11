@@ -94,11 +94,11 @@ export default function LibraryPage() {
         }
       />
 
-      <div className="px-10 py-8">
-        <div className="flex items-baseline justify-between mb-6">
+      <div className="px-6 sm:px-10 py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between mb-6 gap-4">
           <div>
             <h1
-              className="font-serif text-[32px] font-normal m-0"
+              className="font-serif text-[26px] sm:text-[30px] lg:text-[32px] font-normal m-0"
               style={{ letterSpacing: "-0.015em" }}
             >
               Your library.
@@ -107,7 +107,7 @@ export default function LibraryPage() {
               5 documents · 19 citations · last week
             </p>
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-muted">
+          <div className="flex flex-wrap items-center gap-2 text-[12px] text-muted">
             <FilterChip active>All</FilterChip>
             <FilterChip>Drafting</FilterChip>
             <FilterChip>Review</FilterChip>
@@ -115,7 +115,8 @@ export default function LibraryPage() {
           </div>
         </div>
 
-        <div className="border-t border-line">
+        {/* Desktop table view */}
+        <div className="hidden md:block border-t border-line">
           <div className="grid grid-cols-[2.5fr_1fr_0.7fr_0.8fr_0.9fr] gap-4 px-4 py-3 bg-surface border-b border-line text-[10.5px] font-mono tracking-[0.14em] uppercase text-muted">
             <span>Document</span>
             <span>Type</span>
@@ -140,6 +141,31 @@ export default function LibraryPage() {
               <span className="text-[12.5px] text-muted text-right font-mono tracking-[0.02em]">
                 {d.updated}
               </span>
+            </Link>
+          ))}
+        </div>
+
+        {/* Mobile card view */}
+        <div className="md:hidden border-t border-line">
+          {DOCS.map((d) => (
+            <Link
+              key={d.id}
+              href={d.href}
+              className="block px-4 py-4 border-b border-line-soft no-underline text-ink hover:bg-surface transition-colors"
+            >
+              <div className="font-serif text-[15px] text-ink mb-2 leading-[1.35]">
+                {d.title}
+              </div>
+              <div className="flex items-center justify-between gap-3 text-[12px] text-muted">
+                <div className="flex items-center gap-3">
+                  <span className="text-ink-soft">{d.type}</span>
+                  <span aria-hidden className="opacity-50">·</span>
+                  <span className="font-mono">{d.citations} cites</span>
+                  <span aria-hidden className="opacity-50">·</span>
+                  <StatusBadge status={d.status} />
+                </div>
+                <span className="font-mono text-[11.5px]">{d.updated}</span>
+              </div>
             </Link>
           ))}
         </div>

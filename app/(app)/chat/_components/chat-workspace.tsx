@@ -169,10 +169,10 @@ export function ChatWorkspace() {
   }
 
   return (
-    <div className="grid grid-cols-[1fr_320px] flex-1 min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] flex-1 min-h-0">
       {/* Thread + composer */}
-      <div className="flex flex-col border-r border-line">
-        <div ref={threadRef} className="flex-1 overflow-auto px-10 py-8">
+      <div className="flex flex-col lg:border-r lg:border-line min-h-0">
+        <div ref={threadRef} className="flex-1 overflow-auto px-5 py-6 sm:px-8 sm:py-7 lg:px-10 lg:py-8">
           <div className="max-w-[720px]">
             {thread.map((m) => (
               <div key={m.id} className="mb-8">
@@ -222,7 +222,7 @@ export function ChatWorkspace() {
         </div>
 
         {/* Composer */}
-        <div className="border-t border-line bg-surface px-10 py-5">
+        <div className="border-t border-line bg-surface px-5 py-4 sm:px-8 sm:py-5 lg:px-10">
           <form
             className="max-w-[720px]"
             onSubmit={(e) => {
@@ -289,8 +289,8 @@ export function ChatWorkspace() {
         </div>
       </div>
 
-      {/* Citation panel */}
-      <aside className="bg-surface px-5 py-6 overflow-auto">
+      {/* Citation panel — stacks below thread on mobile, side panel on desktop */}
+      <aside className="bg-surface px-5 py-6 overflow-auto border-t border-line lg:border-t-0">
         <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
           Sources · {sources.filter((s) => s.status === "verified").length} verified
           {sources.some((s) => s.status === "unverified") &&

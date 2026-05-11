@@ -86,11 +86,11 @@ export function DraftWorkspace() {
   const unverifiedCount = citations.length - verifiedCount;
 
   return (
-    <div className="grid grid-cols-[1.6fr_1fr] flex-1 min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] flex-1 min-h-0">
       {/* Inputs + Document */}
-      <div className="flex flex-col border-r border-line overflow-auto">
+      <div className="flex flex-col lg:border-r lg:border-line overflow-auto">
         {/* Action bar */}
-        <div className="flex items-center justify-between px-10 py-4 border-b border-line bg-parchment">
+        <div className="flex items-center justify-between px-5 py-3 sm:px-8 sm:py-4 lg:px-10 border-b border-line bg-parchment gap-3">
           <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted">
             Draft · v3 · live
           </div>
@@ -112,11 +112,11 @@ export function DraftWorkspace() {
         </div>
 
         {/* Facts panel */}
-        <div className="border-b border-line bg-surface px-10 py-6">
+        <div className="border-b border-line bg-surface px-5 py-5 sm:px-8 sm:py-6 lg:px-10">
           <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
             Facts · 5 fields
           </div>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 max-w-[760px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 max-w-[760px]">
             <FactRow
               label="Demanding party"
               value="Reyes Law Office, on behalf of GoCloud Inc."
@@ -143,7 +143,7 @@ export function DraftWorkspace() {
 
         {/* Draft body */}
         <article
-          className="px-12 py-10 font-serif text-[15px] text-ink leading-[1.7] flex-1"
+          className="px-5 py-7 sm:px-10 sm:py-10 lg:px-12 font-serif text-[14.5px] sm:text-[15px] text-ink leading-[1.7] flex-1"
           style={{ maxWidth: 780 }}
         >
           {body ? (
@@ -162,8 +162,8 @@ export function DraftWorkspace() {
         </article>
       </div>
 
-      {/* Citations panel */}
-      <aside className="bg-surface px-5 py-6 overflow-auto">
+      {/* Citations panel — stacks below body on mobile */}
+      <aside className="bg-surface px-5 py-6 overflow-auto border-t border-line lg:border-t-0">
         <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-4">
           Citations · {verifiedCount} verified · {unverifiedCount} unverified
         </div>

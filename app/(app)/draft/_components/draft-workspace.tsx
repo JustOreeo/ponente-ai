@@ -128,10 +128,10 @@ export function DraftWorkspace({ template }: { template: Template }) {
 
   return (
     <>
-      <div className="grid grid-cols-[1fr_1fr] flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] flex-1 min-h-0">
         {/* LEFT — facts form */}
-        <div className="flex flex-col border-r border-line overflow-auto">
-          <div className="flex items-center justify-between px-8 py-4 border-b border-line bg-parchment sticky top-0 z-[1]">
+        <div className="flex flex-col lg:border-r lg:border-line overflow-auto">
+          <div className="flex items-center justify-between px-5 py-3 sm:px-8 sm:py-4 border-b border-line bg-parchment sticky top-0 z-[1] gap-3">
             <div>
               <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted">
                 {template.code} · facts
@@ -161,7 +161,7 @@ export function DraftWorkspace({ template }: { template: Template }) {
             </button>
           </div>
 
-          <div className="px-8 py-6 flex flex-col gap-5">
+          <div className="px-5 py-5 sm:px-8 sm:py-6 flex flex-col gap-5">
             {template.fields.map((field) => {
               const value = facts[field.key] ?? "";
               const isMissing = field.required && !value.trim();
@@ -229,8 +229,8 @@ export function DraftWorkspace({ template }: { template: Template }) {
         </div>
 
         {/* RIGHT — preview + citations */}
-        <div className="flex flex-col overflow-hidden min-h-0">
-          <div className="flex items-center justify-between px-7 py-4 border-b border-line bg-parchment">
+        <div className="flex flex-col overflow-hidden min-h-0 border-t border-line lg:border-t-0">
+          <div className="flex items-center justify-between px-5 py-3 sm:px-7 sm:py-4 border-b border-line bg-parchment gap-3 flex-wrap">
             <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted">
               Preview · {body ? "live" : "empty"}
             </div>
@@ -254,9 +254,9 @@ export function DraftWorkspace({ template }: { template: Template }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-[1fr_240px] flex-1 min-h-0">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] flex-1 min-h-0">
             {/* Body */}
-            <article className="px-8 py-7 font-serif text-[14.5px] text-ink leading-[1.7] overflow-auto border-r border-line">
+            <article className="px-5 py-6 sm:px-8 sm:py-7 font-serif text-[14.5px] text-ink leading-[1.7] overflow-auto md:border-r md:border-line">
               {body ? (
                 renderWithCitations(
                   body,
@@ -271,8 +271,8 @@ export function DraftWorkspace({ template }: { template: Template }) {
               )}
             </article>
 
-            {/* Citations panel */}
-            <aside className="bg-surface px-4 py-5 overflow-auto">
+            {/* Citations panel — stacks below body on small screens */}
+            <aside className="bg-surface px-4 py-5 overflow-auto border-t border-line md:border-t-0">
               <div className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-muted mb-3">
                 Citations
               </div>

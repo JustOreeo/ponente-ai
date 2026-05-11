@@ -17,9 +17,9 @@ export default function NewDraftPage() {
         ]}
       />
 
-      <div className="px-10 py-10">
+      <div className="px-6 sm:px-10 py-8 sm:py-10">
         <h1
-          className="font-serif text-[36px] font-normal m-0 mb-2"
+          className="font-serif text-[28px] sm:text-[32px] lg:text-[36px] font-normal m-0 mb-2"
           style={{ letterSpacing: "-0.018em" }}
         >
           What are you drafting?
@@ -30,7 +30,7 @@ export default function NewDraftPage() {
           .docx.
         </p>
 
-        <div className="grid grid-cols-2 gap-4 max-w-[920px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-[920px]">
           {TEMPLATES.map((t) => (
             <Link
               key={t.code}
@@ -80,7 +80,7 @@ export default function NewDraftPage() {
         </div>
 
         {/* Sample */}
-        <div className="mt-10 max-w-[920px] flex items-center justify-between border-t border-line-soft pt-6">
+        <div className="mt-10 max-w-[920px] flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-line-soft pt-6 gap-4">
           <div>
             <div className="font-mono text-[10.5px] text-muted tracking-[0.18em] uppercase mb-1">
               Want to see a finished sample?
