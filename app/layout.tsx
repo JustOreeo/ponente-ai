@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -22,13 +22,53 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
+const SITE_TITLE = "Ponente — The legal AI that drafts, not just answers.";
+const SITE_DESCRIPTION =
+  "Ponente writes pleadings, affidavits, and position papers from your inputs — and cites every Philippine case, R.A., and constitutional provision behind each line.";
+
 export const metadata: Metadata = {
-  title: "Ponente — The legal AI that drafts, not just answers.",
-  description:
-    "Ponente writes pleadings, affidavits, and position papers from your inputs — and cites every Philippine case, R.A., and constitutional provision behind each line.",
-  icons: {
-    icon: "/favicon.svg",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://ponente.ph",
+  ),
+  title: {
+    default: SITE_TITLE,
+    template: "%s · Ponente",
   },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "Philippine legal AI",
+    "pleading drafting",
+    "NLRC position paper",
+    "demand letter",
+    "affidavit of loss",
+    "Philippine case law",
+    "Manila legal tech",
+    "Filipino lawyers",
+    "law firm software",
+  ],
+  authors: [{ name: "Ponente" }],
+  openGraph: {
+    type: "website",
+    locale: "en_PH",
+    url: "/",
+    siteName: "Ponente",
+    title: SITE_TITLE,
+    description:
+      "Pleadings, affidavits, and position papers grounded in Philippine sources.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ponente",
+    description:
+      "Pleadings, affidavits, and position papers grounded in Philippine sources.",
+  },
+  robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#f5efe2",
 };
 
 export default function RootLayout({
