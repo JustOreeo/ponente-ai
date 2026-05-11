@@ -88,6 +88,33 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 Restart the dev server after editing `.env.local`.
 
+### 5. (Phase 1b) Anthropic + Voyage AI keys
+
+For real Q&A and drafting (otherwise the stub AI client serves canned demo responses):
+
+1. Anthropic console → **Settings → API Keys** → create a key. Add to `.env.local`:
+   ```
+   ANTHROPIC_API_KEY=sk-ant-api03-...
+   ```
+2. Voyage AI dashboard (https://dash.voyageai.com) → API Keys → create. Add:
+   ```
+   VOYAGE_API_KEY=pa-...
+   ```
+3. Apply the Phase 1b migration via SQL Editor:
+   - `20260512000005_vector.sql` — enables `pgvector`, creates `legal_documents` + `legal_chunks` + `match_legal_chunks` RPC
+
+When Anthropic + Voyage + Supabase service-role are all set, `lib/ai/client.ts` automatically swaps the stub for the real Claude adapter. Without them, the app still runs (stub responses), so dev iteration on UI doesn't require keys.
+
+### 6. (Phase 1b) Curate + ingest the corpus
+
+```bash
+# 1. Add chunked Markdown files under corpus/. See corpus/README.md for format.
+# 2. Embed + upsert all of them via Voyage:
+npm run ingest:codes
+# Or one document at a time:
+npm run ingest:codes -- civil_code
+```
+
 ## Routes
 
 ```
@@ -114,5 +141,25 @@ Marketing (public, static)        Auth (public, dynamic)       App (gated, dynam
 - **Fonts**: Source Serif 4 (display), Inter (UI), IBM Plex Mono (accents) — via `next/font/google`
 - **Auth**: Supabase Auth, 6-digit OTP via Resend SMTP, no magic links
 - **DB**: Supabase Postgres with RLS
-- **AI**: Anthropic Claude (Phase 1b+)
+- **Vector store**: Supabase + pgvector (HNSW index, cosine distance)
+- **Embeddings**: Voyage AI (`voyage-law-2`, 1024d, legal-domain-tuned)
+- **AI**: Anthropic Claude Sonnet 4.6 (chat + drafting, with retrieval-grounded citations)
 - **Hosting**: Vercel
+
+## Phase 1b architecture
+
+```
+user query
+  ↓
+embedQuery (Voyage voyage-law-2, 1024d)
+  ↓
+match_legal_chunks RPC (Supabase pgvector, top-25 cosine)
+  ↓
+Claude messages.stream (Sonnet 4.6 + PH legal system prompt + retrieved chunks as context)
+  ↓
+SSE → browser (text + citation events)
+  ↓
+ChatWorkspace renders [[tag]] markers as CitationPill, side panel populated from citation events
+```
+
+`lib/ai/client.ts` is the dispatcher: real adapter when keys are set, stub otherwise. Quota enforcement (`lib/auth/quota.ts`) gates `/api/chat` and `/api/draft` — Free: 5 Q&A/day, no drafts. Pro and Small Firm: unlimited. Counters key on PH calendar day (Asia/Manila).
