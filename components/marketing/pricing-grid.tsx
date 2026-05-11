@@ -38,12 +38,16 @@ export const TIERS: Tier[] = [
 
 export function PricingGrid({ tiers = TIERS }: { tiers?: Tier[] }) {
   return (
-    <div className="grid grid-cols-3 border border-line">
-      {tiers.map((t) => (
+    <div className="grid grid-cols-1 md:grid-cols-3 border border-line">
+      {tiers.map((t, i) => (
         <div
           key={t.slug}
           id={t.slug}
-          className="px-7 py-8 border-r border-line last:border-r-0 relative"
+          className={`px-6 sm:px-7 py-7 sm:py-8 relative ${
+            i < tiers.length - 1
+              ? "border-b border-line md:border-r md:border-b-0"
+              : ""
+          }`}
           style={{
             background: t.highlight ? "var(--color-surface)" : "transparent",
           }}
@@ -58,7 +62,7 @@ export function PricingGrid({ tiers = TIERS }: { tiers?: Tier[] }) {
           </div>
           <div className="flex items-baseline gap-[6px] mb-[18px]">
             <span
-              className="font-serif text-[40px] font-medium"
+              className="font-serif text-[36px] sm:text-[40px] font-medium"
               style={{ letterSpacing: "-0.02em" }}
             >
               {t.price}

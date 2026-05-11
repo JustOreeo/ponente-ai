@@ -15,12 +15,15 @@ type Props = {
 };
 
 export function BenefitGrid({ title, aside, items, cols = 3 }: Props) {
-  const colClass = cols === 2 ? "grid-cols-2" : "grid-cols-3";
+  const colClass =
+    cols === 2
+      ? "grid-cols-1 md:grid-cols-2"
+      : "grid-cols-1 md:grid-cols-3";
   return (
-    <section style={{ padding: "72px 56px" }}>
-      <div className="flex items-baseline justify-between mb-10">
+    <section className="px-6 py-12 sm:px-10 sm:py-16 lg:px-14 lg:py-[72px]">
+      <div className="flex flex-col md:flex-row md:items-baseline md:justify-between mb-8 md:mb-10 gap-4 md:gap-8">
         <h2
-          className="font-serif text-[44px] font-normal m-0 max-w-[520px]"
+          className="font-serif text-[32px] sm:text-[38px] lg:text-[44px] font-normal m-0 max-w-[520px]"
           style={{ letterSpacing: "-0.018em", lineHeight: 1.05 }}
         >
           {title}
@@ -34,11 +37,17 @@ export function BenefitGrid({ title, aside, items, cols = 3 }: Props) {
           </p>
         )}
       </div>
-      <div className={`grid ${colClass} border-t border-b border-line`}>
+      <div className={`grid ${colClass} border-t border-line md:border-b`}>
         {items.map((f, i) => (
           <article
             key={f.num}
-            className={`px-7 py-8 ${i > 0 ? "border-l border-line" : ""}`}
+            className={`px-6 sm:px-7 py-7 sm:py-8 ${
+              i > 0
+                ? cols === 2
+                  ? "border-t border-line md:border-t-0 md:border-l"
+                  : "border-t border-line md:border-t-0 md:border-l"
+                : ""
+            }`}
           >
             <div className="flex items-center justify-between mb-[18px]">
               <span className="font-mono text-[10.5px] text-accent tracking-[0.18em] uppercase">
@@ -46,7 +55,7 @@ export function BenefitGrid({ title, aside, items, cols = 3 }: Props) {
               </span>
             </div>
             <h3
-              className="font-serif text-[26px] font-medium m-0 mb-3"
+              className="font-serif text-[22px] sm:text-[24px] lg:text-[26px] font-medium m-0 mb-3"
               style={{ letterSpacing: "-0.012em", lineHeight: 1.15 }}
             >
               {f.head}
@@ -60,6 +69,8 @@ export function BenefitGrid({ title, aside, items, cols = 3 }: Props) {
           </article>
         ))}
       </div>
+      {/* Bottom border for mobile single-col layout */}
+      <div className="border-b border-line md:hidden" />
     </section>
   );
 }

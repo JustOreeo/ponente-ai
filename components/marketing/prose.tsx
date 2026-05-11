@@ -7,19 +7,25 @@ import type { ReactNode } from "react";
 export function Prose({ children }: { children: ReactNode }) {
   return (
     <article
-      className="prose-ponente max-w-[720px] mx-auto font-serif text-[17px] text-ink-soft"
-      style={{ padding: "72px 56px 96px", lineHeight: 1.65 }}
+      className="prose-ponente max-w-[720px] mx-auto font-serif text-[16px] sm:text-[17px] text-ink-soft px-6 py-12 sm:px-10 sm:py-16 lg:px-14 lg:pt-[72px] lg:pb-24"
+      style={{ lineHeight: 1.65 }}
     >
       {children}
       <style>{`
         .prose-ponente h1 {
           font-family: var(--font-serif);
-          font-size: 56px;
+          font-size: 40px;
           font-weight: 400;
           color: var(--color-ink);
           letter-spacing: -0.025em;
           line-height: 1.04;
           margin: 0 0 8px;
+        }
+        @media (min-width: 640px) {
+          .prose-ponente h1 { font-size: 48px; }
+        }
+        @media (min-width: 1024px) {
+          .prose-ponente h1 { font-size: 56px; }
         }
         .prose-ponente .lede {
           font-family: var(--font-mono);
@@ -31,12 +37,15 @@ export function Prose({ children }: { children: ReactNode }) {
         }
         .prose-ponente h2 {
           font-family: var(--font-serif);
-          font-size: 28px;
+          font-size: 24px;
           font-weight: 500;
           color: var(--color-ink);
           letter-spacing: -0.012em;
           line-height: 1.15;
-          margin: 56px 0 16px;
+          margin: 48px 0 14px;
+        }
+        @media (min-width: 640px) {
+          .prose-ponente h2 { font-size: 28px; margin: 56px 0 16px; }
         }
         .prose-ponente h3 {
           font-family: var(--font-sans);
@@ -63,14 +72,17 @@ export function Prose({ children }: { children: ReactNode }) {
         .prose-ponente hr {
           border: 0;
           border-top: 1px solid var(--color-line);
-          margin: 56px 0;
+          margin: 48px 0;
+        }
+        @media (min-width: 640px) {
+          .prose-ponente hr { margin: 56px 0; }
         }
         .prose-ponente .meta {
           font-family: var(--font-mono);
           font-size: 12px;
           color: var(--color-muted);
           letter-spacing: 0.04em;
-          margin-bottom: 56px;
+          margin-bottom: 48px;
         }
       `}</style>
     </article>

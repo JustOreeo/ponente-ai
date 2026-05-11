@@ -43,20 +43,17 @@ const COLS: FooterCol[] = [
 
 export function Footer() {
   return (
-    <footer
-      className="bg-ink text-parchment"
-      style={{ padding: "48px 56px 28px" }}
-    >
-      <div className="flex items-end justify-between mb-9">
+    <footer className="bg-ink text-parchment px-6 sm:px-10 lg:px-14 pt-10 lg:pt-12 pb-7">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-7 lg:mb-9 gap-4">
         <Link href="/" className="text-parchment no-underline">
-          <Wordmark size={64} />
+          <Wordmark size={56} className="lg:[font-size:64px]" />
         </Link>
         <div className="font-mono text-[11px] tracking-[0.16em] uppercase text-gold">
           Manila · Philippines
         </div>
       </div>
       <div
-        className="grid grid-cols-4 gap-8 text-[13px] pt-7"
+        className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-[13px] pt-6 lg:pt-7"
         style={{
           color: "rgba(245,239,226,0.75)",
           borderTop: "1px solid rgba(245,239,226,0.15)",
@@ -81,7 +78,7 @@ export function Footer() {
         ))}
       </div>
       <p
-        className="mt-9 text-[11px] italic max-w-[720px] m-0"
+        className="mt-7 lg:mt-9 text-[11px] italic max-w-[720px] m-0"
         style={{ color: "rgba(245,239,226,0.55)" }}
       >
         Ponente is a drafting and research aid. It is not a substitute for a
