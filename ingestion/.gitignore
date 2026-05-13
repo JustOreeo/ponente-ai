@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# uv
+.python-version.bak
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Ingestion artifacts (large + per-machine)
+cache/
+state.db
+state.db-journal
+state.db-wal
+state.db-shm
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

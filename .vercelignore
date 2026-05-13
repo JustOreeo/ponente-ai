@@ -1,0 +1,14 @@
+# Files Vercel should never upload — these are dev-only / data artifacts.
+# https://vercel.com/docs/cli/project-configuration#vercelignore
+
+# Python ingestion pipeline (separate runtime, not part of the Next.js app)
+ingestion/
+
+# Hand-curated corpus markdown — ingested via `npm run ingest:codes` locally
+corpus/
+
+# Brand reference + Claude Design source files
+design/
+
+# Local design / planning notes
+*.local.md

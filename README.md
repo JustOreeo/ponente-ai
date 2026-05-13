@@ -6,15 +6,16 @@ Built with Next.js 16 (App Router) + TypeScript + Tailwind v4 + Supabase + Anthr
 
 ## Status
 
-| Phase | Goal                            | Status                          |
-| ----- | ------------------------------- | ------------------------------- |
-| 0     | Visual shell                    | shipped                         |
-| 1a    | Auth foundation + OTP           | shipped — needs setup below     |
-| 1b    | Q&A + sources + quota           | next                            |
-| 2     | Drafting MVP + .docx export     | —                               |
-| 3     | Citation depth + source PDFs    | —                               |
-| 4     | Paymongo + firm SSO             | —                               |
-| 5     | Mobile + ops hardening          | —                               |
+| Phase | Goal                                       | Status                          |
+| ----- | ------------------------------------------ | ------------------------------- |
+| 0     | Visual shell                               | shipped                         |
+| 1a    | Auth foundation + OTP                      | shipped — needs setup below     |
+| 1b    | Q&A pipeline (Claude + Voyage + pgvector)  | code shipped — awaiting keys    |
+| 1c    | SC e-Library scraper                       | code shipped — see `ingestion/` |
+| 2     | Drafting MVP + .docx export                | shipped                         |
+| 3     | Mobile responsive + SEO                    | shipped                         |
+| 4     | Paymongo subscriptions                     | skipped for now                 |
+| 5     | Tagalog button + admin issuances + teams   | shipped                         |
 
 ## Local development
 
@@ -163,3 +164,31 @@ ChatWorkspace renders [[tag]] markers as CitationPill, side panel populated from
 ```
 
 `lib/ai/client.ts` is the dispatcher: real adapter when keys are set, stub otherwise. Quota enforcement (`lib/auth/quota.ts`) gates `/api/chat` and `/api/draft` — Free: 5 Q&A/day, no drafts. Pro and Small Firm: unlimited. Counters key on PH calendar day (Asia/Manila).
+
+## Repo layout
+
+```
+ponente-ai/
+├── app/                  # Next.js App Router pages + API routes
+├── components/           # React components (marketing, app shell, primitives)
+├── lib/                  # ai, auth, draft, supabase helpers
+├── public/               # static assets
+├── supabase/migrations/  # SQL migrations (apply via Supabase SQL Editor)
+├── corpus/               # hand-curated PH legal markdown for ingest:codes
+├── design/               # Claude Design brand reference (HTML/JSX prototypes)
+├── ingestion/            # Python scraper for SC e-Library — see ingestion/README.md
+└── scripts/              # one-off Node scripts (e.g. ingest-codes.ts)
+```
+
+`design/`, `corpus/`, and `ingestion/` are excluded from Vercel deploys via `.vercelignore`.
+
+## Ingestion pipeline (Python)
+
+The Python pipeline that scrapes SC e-Library, OCR's PDFs, and embeds them into `legal_chunks` lives at `ingestion/`. It's a separate uv project (Python 3.11) but reuses the app's `.env.local` for shared keys. See [`ingestion/README.md`](./ingestion/README.md) for setup and CLI.
+
+```bash
+cd ingestion
+uv sync                                    # one-time: install Python + deps
+uv run ponente-ingest pipeline --year 2025 --months Apr --limit 5   # smoke test
+uv run ponente-ingest status               # see what's where
+```
