@@ -81,7 +81,16 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${sourceSerif.variable} ${plexMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {/* Skip link — visible only on keyboard focus. Improves Lighthouse a11y. */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:bg-ink focus:text-parchment focus:px-3 focus:py-2 focus:rounded-[2px] focus:text-[13px]"
+        >
+          Skip to content
+        </a>
+        <div id="main-content">{children}</div>
+      </body>
     </html>
   );
 }
