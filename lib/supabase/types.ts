@@ -170,6 +170,93 @@ export type Database = {
         }>;
         Relationships: [];
       };
+      chats: {
+        Row: {
+          id: string;
+          user_id: string;
+          firm_id: string | null;
+          title: string;
+          practice_areas: string[];
+          archived: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          firm_id?: string | null;
+          title?: string;
+          practice_areas?: string[];
+          archived?: boolean;
+        };
+        Update: Partial<{
+          title: string;
+          firm_id: string | null;
+          practice_areas: string[];
+          archived: boolean;
+        }>;
+        Relationships: [];
+      };
+      chat_messages: {
+        Row: {
+          id: string;
+          chat_id: string;
+          role: "user" | "assistant";
+          body: string;
+          citations: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          chat_id: string;
+          role: "user" | "assistant";
+          body: string;
+          citations?: Json;
+        };
+        Update: Partial<{
+          body: string;
+          citations: Json;
+        }>;
+        Relationships: [];
+      };
+      drafts: {
+        Row: {
+          id: string;
+          user_id: string;
+          firm_id: string | null;
+          template: "demand" | "affidavit" | "nlrc" | "mr" | "petition";
+          title: string;
+          facts: Json;
+          body: string;
+          citations: Json;
+          status: "drafting" | "review" | "final";
+          archived: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          firm_id?: string | null;
+          template: "demand" | "affidavit" | "nlrc" | "mr" | "petition";
+          title?: string;
+          facts?: Json;
+          body?: string;
+          citations?: Json;
+          status?: "drafting" | "review" | "final";
+          archived?: boolean;
+        };
+        Update: Partial<{
+          title: string;
+          firm_id: string | null;
+          facts: Json;
+          body: string;
+          citations: Json;
+          status: "drafting" | "review" | "final";
+          archived: boolean;
+        }>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
