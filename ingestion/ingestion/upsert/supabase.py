@@ -52,14 +52,22 @@ def upsert_decision(
     metadata: ExtractedMetadata,
     chunks: list[Chunk],
     embeddings: list[list[float]],
+    doc_type: str = "supreme_court_decision",
 ) -> str:
-    """Upsert document + chunks. Returns the legal_documents UUID."""
+    """Upsert document + chunks. Returns the legal_documents UUID.
+
+    `doc_type` matches the CHECK constraint on legal_documents.doc_type:
+      constitution | code | republic_act | supreme_court_decision |
+      executive_order | admin_issuance | local_ordinance
+    """
     if len(chunks) != len(embeddings):
         raise ValueError(
             f"chunk/embedding count mismatch: {len(chunks)} vs {len(embeddings)}"
         )
 
-    document_id = _upsert_document(doc_id=doc_id, source_url=source_url, metadata=metadata)
+    document_id = _upsert_document(
+        doc_id=doc_id, source_url=source_url, metadata=metadata, doc_type=doc_type
+    )
     log.info("upserted document %s (uuid=%s)", doc_id, document_id)
 
     _delete_existing_chunks(document_id)
@@ -109,17 +117,18 @@ def _upsert_document(
     doc_id: str,
     source_url: str,
     metadata: ExtractedMetadata,
+    doc_type: str,
 ) -> str:
     """Insert if missing, update if present (matched on metadata->>'doc_id').
 
     PostgREST doesn't support upsert-on-jsonb-key directly, so we do
     select-then-insert-or-update.
     """
-    title = metadata.case_title or metadata.docket_number or f"SC e-Library doc {doc_id}"
+    title = metadata.case_title or metadata.docket_number or f"Legal document {doc_id}"
 
     payload = {
         "title": title,
-        "doc_type": "supreme_court_decision",
+        "doc_type": doc_type,
         "source_url": source_url,
         "jurisdiction": "PH",
         "practice_areas": metadata.practice_areas or [],

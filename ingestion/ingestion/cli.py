@@ -2,6 +2,9 @@
 
 Usage examples:
   ponente-ingest discover --year 2025 --months Jan,Feb,Mar
+  ponente-ingest discover-ra --max-pages 5
+  ponente-ingest discover-admin --source bir
+  ponente-ingest discover-local --city makati
   ponente-ingest crawl --limit 100
   ponente-ingest text --limit 100
   ponente-ingest meta --limit 100
@@ -21,6 +24,7 @@ from rich.table import Table
 
 from ingestion import pipeline as pipeline_mod
 from ingestion.config import load_config, load_config_lenient
+from ingestion.crawl.local_ordinances import cities as local_cities
 from ingestion.crawl.sc_elibrary import MONTH_ABBRS
 from ingestion.logging import configure as configure_logging
 from ingestion.state import StateDB
@@ -83,10 +87,61 @@ def discover(year: int, months: str) -> None:
     console.print(f"[green]registered {new} new decisions")
 
 
+@main.command(name="discover-ra")
+@click.option(
+    "--max-pages",
+    type=int,
+    default=1,
+    help="Pages of the Official Gazette listing to walk. ~20 RAs per page.",
+)
+def discover_ra(max_pages: int) -> None:
+    """Walk Republic Acts on officialgazette.gov.ph; register in state."""
+    load_config()
+    state = _open_state()
+    new = pipeline_mod.run_discover_ra(state, max_pages=max_pages)
+    console.print(f"[green]registered {new} new Republic Acts")
+
+
+@main.command(name="discover-admin")
+@click.option(
+    "--source",
+    type=click.Choice(["bir", "sec", "bsp", "dole"]),
+    required=True,
+)
+def discover_admin(source: str) -> None:
+    """Walk admin-issuance listings (BIR/SEC/BSP/DOLE)."""
+    load_config()
+    state = _open_state()
+    new = pipeline_mod.run_discover_admin(state, source=source)  # type: ignore[arg-type]
+    console.print(f"[green]registered {new} new {source.upper()} issuances")
+
+
+@main.command(name="discover-local")
+@click.option("--city", type=str, required=True, help="City slug (see --list)")
+@click.option(
+    "--list",
+    "list_cities",
+    is_flag=True,
+    default=False,
+    help="List available city plugins and exit.",
+)
+def discover_local(city: str, list_cities: bool) -> None:
+    """Walk a city's local-ordinance listing."""
+    if list_cities:
+        console.print("Available city plugins:")
+        for c in local_cities():
+            console.print(f"  {c}")
+        return
+    load_config()
+    state = _open_state()
+    new = pipeline_mod.run_discover_local(state, city=city)
+    console.print(f"[green]registered {new} new ordinances for {city}")
+
+
 @main.command()
 @click.option("--limit", type=int, default=None)
 def crawl(limit: int | None) -> None:
-    """Download PDFs for crawl-pending decisions."""
+    """Download PDFs for crawl-pending rows (any source)."""
     load_config()
     state = _open_state()
     pipeline_mod.run_crawl(state, limit=limit)
@@ -179,6 +234,7 @@ def show_cmd(doc_id: str) -> None:
     table.add_column("value")
     for field_name in (
         "doc_id",
+        "source",
         "source_url",
         "crawl_status",
         "text_status",
