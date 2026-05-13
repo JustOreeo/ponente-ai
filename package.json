@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ingest:codes": "tsx scripts/ingest-codes.ts"
+    "ingest:codes": "tsx scripts/ingest-codes.ts",
+    "test:corpus": "tsx scripts/test-corpus.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
