@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getFirmContext, listFirmInvites } from "@/lib/auth/firm";
+import { sendEmail } from "@/lib/email/resend";
+import { renderInviteEmail } from "@/lib/email/templates";
 
 export const runtime = "nodejs";
 
@@ -103,6 +105,39 @@ export async function POST(request: Request) {
     );
   }
 
+  // Best-effort: send the invite via Resend if configured. UI still falls
+  // back to the copy-link button regardless.
+  const acceptUrl = inviteUrl(request, inserted.token);
+  let emailDelivery: "sent" | "skipped" | { failed: string } = "skipped";
+  try {
+    const { data: inviterProfile } = await admin
+      .from("profiles")
+      .select("id, full_name, firm_id, role, created_at")
+      .eq("id", user.id)
+      .maybeSingle();
+    const result = await sendEmail({
+      to: email,
+      ...renderInviteEmail({
+        firmName: ctx.firm.name,
+        inviterName: inviterProfile?.full_name ?? null,
+        recipientEmail: email,
+        acceptUrl,
+        expiresAt: inserted.expires_at,
+        role: inserted.role,
+      }),
+      tags: [
+        { name: "kind", value: "firm_invite" },
+        { name: "firm_id", value: ctx.firm.id },
+      ],
+    });
+    if (result.sent) emailDelivery = "sent";
+    else emailDelivery = { failed: result.reason };
+  } catch (err) {
+    emailDelivery = {
+      failed: err instanceof Error ? err.message : "unknown",
+    };
+  }
+
   return NextResponse.json(
     {
       invite: {
@@ -112,7 +147,16 @@ export async function POST(request: Request) {
         token: inserted.token,
         expires_at: inserted.expires_at,
       },
+      email_delivery: emailDelivery,
     },
     { status: 201 },
   );
+}
+
+function inviteUrl(request: Request, token: string): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  if (fromEnv) return `${fromEnv}/invite/${token}`;
+  // Fall back to the request origin (works on Vercel and localhost).
+  const origin = new URL(request.url).origin;
+  return `${origin}/invite/${token}`;
 }
