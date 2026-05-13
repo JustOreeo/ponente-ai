@@ -11,19 +11,43 @@ import {
   type Template,
 } from "@/lib/draft/templates";
 
+type WorkspaceProps = {
+  template: Template;
+  /** When set, the workspace is editing this saved draft. */
+  initialDraftId?: string;
+  initialFactsOverride?: Record<string, string>;
+  initialBody?: string;
+  initialCitations?: Citation[];
+  initialTitle?: string;
+};
+
 /**
  * Generic drafting workspace. Renders the template's form on the left and
  * a streamed draft preview + citations panel on the right. Generates via
- * /api/draft and exports via /api/draft/export.
+ * /api/draft, persists via /api/drafts on first generate, and exports via
+ * /api/draft/export.
  */
-export function DraftWorkspace({ template }: { template: Template }) {
-  const [facts, setFacts] = useState<Record<string, string>>(() =>
-    initialFacts(template),
+export function DraftWorkspace({
+  template,
+  initialDraftId,
+  initialFactsOverride,
+  initialBody,
+  initialCitations,
+  initialTitle,
+}: WorkspaceProps) {
+  const [draftId, setDraftId] = useState<string | null>(initialDraftId ?? null);
+  const [title, setTitle] = useState<string>(
+    initialTitle ?? `Untitled ${template.name}`,
   );
-  const [body, setBody] = useState("");
-  const [citations, setCitations] = useState<Citation[]>([]);
+  const [facts, setFacts] = useState<Record<string, string>>(
+    () => initialFactsOverride ?? initialFacts(template),
+  );
+  const [body, setBody] = useState(initialBody ?? "");
+  const [citations, setCitations] = useState<Citation[]>(initialCitations ?? []);
   const [streaming, setStreaming] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [paywall, setPaywall] = useState<
     | { open: false }
@@ -47,12 +71,69 @@ export function DraftWorkspace({ template }: { template: Template }) {
     setFacts((prev) => ({ ...prev, [key]: value }));
   }
 
+  /**
+   * Ensure a draft row exists; create one and patch the URL on first call.
+   * Returns the draft ID, or null if creation failed (continues in memory).
+   */
+  async function ensureDraft(): Promise<string | null> {
+    if (draftId) return draftId;
+    try {
+      const res = await fetch("/api/drafts", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          template: template.apiKey,
+          title,
+          facts,
+        }),
+      });
+      if (!res.ok) return null;
+      const json = await res.json();
+      const id = json?.draft?.id as string | undefined;
+      if (!id) return null;
+      setDraftId(id);
+      if (typeof window !== "undefined") {
+        window.history.replaceState(null, "", `/draft/saved/${id}`);
+      }
+      return id;
+    } catch {
+      return null;
+    }
+  }
+
+  async function persistDraft(
+    targetId: string,
+    patch: Partial<{
+      body: string;
+      citations: Citation[];
+      facts: Record<string, string>;
+      title: string;
+    }>,
+  ): Promise<void> {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/drafts/${targetId}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      if (res.ok) setSavedAt(new Date());
+    } catch {
+      // Swallow — UI keeps the unsaved state visible.
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function generate() {
     if (streaming || missing.length > 0) return;
     setStreaming(true);
     setError(null);
     setBody("");
     setCitations([]);
+
+    let assistantBody = "";
+    const turnCitations: Citation[] = [];
 
     try {
       const res = await fetch("/api/draft", {
@@ -76,15 +157,27 @@ export function DraftWorkspace({ template }: { template: Template }) {
       }
       for await (const event of readEvents(res)) {
         if (event.type === "text") {
+          assistantBody += event.delta;
           setBody((prev) => prev + event.delta);
         } else if (event.type === "citation") {
           const c = event.citation;
+          turnCitations.push(c);
           setCitations((prev) =>
             prev.some((p) => p.tag === c.tag) ? prev : [...prev, c],
           );
         } else if (event.type === "error") {
           throw new Error(event.message);
         }
+      }
+
+      // Persist after stream completes.
+      const targetId = await ensureDraft();
+      if (targetId) {
+        await persistDraft(targetId, {
+          body: assistantBody,
+          citations: turnCitations,
+          facts,
+        });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Stream error.");
@@ -126,6 +219,19 @@ export function DraftWorkspace({ template }: { template: Template }) {
     }
   }
 
+  const saveLabel =
+    saving
+      ? "Saving…"
+      : savedAt
+        ? `Saved ${savedAt.toLocaleTimeString("en-PH", {
+            timeZone: "Asia/Manila",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}`
+        : draftId
+          ? "Saved"
+          : "Not saved yet";
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] flex-1 min-h-0">
@@ -144,6 +250,7 @@ export function DraftWorkspace({ template }: { template: Template }) {
                     · {missing.length} required
                   </span>
                 )}
+                <span className="text-muted"> · {saveLabel}</span>
               </div>
             </div>
             <button

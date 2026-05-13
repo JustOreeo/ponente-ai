@@ -2,70 +2,55 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Topbar } from "@/components/app/topbar";
 import { BtnPrimary } from "@/components/buttons";
+import { listChats } from "@/lib/persist/chats";
+import { listDrafts } from "@/lib/persist/drafts";
+import { requireProfile } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Library — Ponente",
 };
 
-type Doc = {
+export const dynamic = "force-dynamic";
+
+type LibraryItem = {
+  kind: "chat" | "draft";
   id: string;
   title: string;
+  updated_at: string;
   type: string;
-  citations: number;
-  status: "drafting" | "review" | "final";
-  updated: string;
+  citations: number | null;
+  status: "drafting" | "review" | "final" | null;
   href: string;
 };
 
-const DOCS: Doc[] = [
-  {
-    id: "demo-letter",
-    title: "Demand to Globe Telecom · unpaid services",
-    type: "Demand Letter",
-    citations: 3,
-    status: "drafting",
-    updated: "Today, 14:22",
-    href: "/draft/demo-letter",
-  },
-  {
-    id: "lic-loss",
-    title: "Affidavit of Loss · driver's license",
-    type: "Affidavit",
-    citations: 1,
-    status: "final",
-    updated: "Yesterday",
-    href: "/draft/demo-letter",
-  },
-  {
-    id: "reyes-acme",
-    title: "NLRC Position Paper · Reyes v. ACME Manufacturing",
-    type: "Position Paper",
-    citations: 7,
-    status: "review",
-    updated: "2 days ago",
-    href: "/draft/demo-letter",
-  },
-  {
-    id: "tan-mr",
-    title: "Motion for Reconsideration · Spouses Tan",
-    type: "MR",
-    citations: 4,
-    status: "drafting",
-    updated: "3 days ago",
-    href: "/draft/demo-letter",
-  },
-  {
-    id: "chat-rent",
-    title: "Q&A · advance rent under R.A. 9653",
-    type: "Q&A thread",
-    citations: 4,
-    status: "final",
-    updated: "Last week",
-    href: "/chat",
-  },
-];
+const TEMPLATE_LABEL: Record<string, string> = {
+  demand: "Demand Letter",
+  affidavit: "Affidavit of Loss",
+  nlrc: "NLRC Position Paper",
+  mr: "Motion for Reconsideration",
+  petition: "Verified Petition",
+};
 
-function StatusBadge({ status }: { status: Doc["status"] }) {
+function relativeTimePH(iso: string): string {
+  const now = Date.now();
+  const then = new Date(iso).getTime();
+  const diffMs = Math.max(0, now - then);
+  const min = 60_000;
+  const hour = 60 * min;
+  const day = 24 * hour;
+  if (diffMs < min) return "just now";
+  if (diffMs < hour) return `${Math.floor(diffMs / min)} min ago`;
+  if (diffMs < day) return `${Math.floor(diffMs / hour)}h ago`;
+  if (diffMs < 2 * day) return "yesterday";
+  if (diffMs < 7 * day) return `${Math.floor(diffMs / day)} days ago`;
+  return new Date(iso).toLocaleDateString("en-PH", { timeZone: "Asia/Manila" });
+}
+
+function StatusBadge({
+  status,
+}: {
+  status: "drafting" | "review" | "final";
+}) {
   const config = {
     drafting: { color: "var(--color-accent)", label: "Drafting" },
     review: { color: "var(--color-gold)", label: "Review" },
@@ -82,7 +67,47 @@ function StatusBadge({ status }: { status: Doc["status"] }) {
   );
 }
 
-export default function LibraryPage() {
+function ChatBadge() {
+  return (
+    <span className="inline-flex items-center gap-[6px]">
+      <span className="w-[6px] h-[6px] rounded-full bg-ink-soft" />
+      <span className="text-[12.5px] text-ink-soft">Q&amp;A</span>
+    </span>
+  );
+}
+
+export default async function LibraryPage() {
+  await requireProfile();
+  const [chats, drafts] = await Promise.all([listChats(), listDrafts()]);
+
+  const items: LibraryItem[] = [
+    ...chats.map<LibraryItem>((c) => ({
+      kind: "chat",
+      id: c.id,
+      title: c.title,
+      updated_at: c.updated_at,
+      type: "Q&A thread",
+      citations: null,
+      status: null,
+      href: `/chat/${c.id}`,
+    })),
+    ...drafts.map<LibraryItem>((d) => ({
+      kind: "draft",
+      id: d.id,
+      title: d.title,
+      updated_at: d.updated_at,
+      type: TEMPLATE_LABEL[d.template] ?? d.template,
+      citations: Array.isArray(d.citations) ? d.citations.length : 0,
+      status: d.status,
+      href: `/draft/saved/${d.id}`,
+    })),
+  ].sort((a, b) => b.updated_at.localeCompare(a.updated_at));
+
+  const totalCitations = drafts.reduce(
+    (acc, d) => acc + (Array.isArray(d.citations) ? d.citations.length : 0),
+    0,
+  );
+
   return (
     <>
       <Topbar
@@ -104,96 +129,123 @@ export default function LibraryPage() {
               Your library.
             </h1>
             <p className="text-[13.5px] text-muted mt-1 m-0">
-              5 documents · 19 citations · last week
+              {items.length} {items.length === 1 ? "item" : "items"}
+              {totalCitations > 0 && ` · ${totalCitations} citations`}
+              {items[0] && ` · ${relativeTimePH(items[0].updated_at)}`}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-[12px] text-muted">
-            <FilterChip active>All</FilterChip>
-            <FilterChip>Drafting</FilterChip>
-            <FilterChip>Review</FilterChip>
-            <FilterChip>Final</FilterChip>
-          </div>
         </div>
 
-        {/* Desktop table view */}
-        <div className="hidden md:block border-t border-line">
-          <div className="grid grid-cols-[2.5fr_1fr_0.7fr_0.8fr_0.9fr] gap-4 px-4 py-3 bg-surface border-b border-line text-[10.5px] font-mono tracking-[0.14em] uppercase text-muted">
-            <span>Document</span>
-            <span>Type</span>
-            <span>Citations</span>
-            <span>Status</span>
-            <span className="text-right">Updated</span>
-          </div>
-          {DOCS.map((d) => (
-            <Link
-              key={d.id}
-              href={d.href}
-              className="grid grid-cols-[2.5fr_1fr_0.7fr_0.8fr_0.9fr] gap-4 px-4 py-4 border-b border-line-soft no-underline text-ink hover:bg-surface transition-colors items-baseline"
-            >
-              <span className="font-serif text-[15px] text-ink">{d.title}</span>
-              <span className="text-[13px] text-ink-soft">{d.type}</span>
-              <span className="text-[13px] font-mono text-ink-soft">
-                {d.citations}
-              </span>
-              <span>
-                <StatusBadge status={d.status} />
-              </span>
-              <span className="text-[12.5px] text-muted text-right font-mono tracking-[0.02em]">
-                {d.updated}
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        {/* Mobile card view */}
-        <div className="md:hidden border-t border-line">
-          {DOCS.map((d) => (
-            <Link
-              key={d.id}
-              href={d.href}
-              className="block px-4 py-4 border-b border-line-soft no-underline text-ink hover:bg-surface transition-colors"
-            >
-              <div className="font-serif text-[15px] text-ink mb-2 leading-[1.35]">
-                {d.title}
+        {items.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block border-t border-line">
+              <div className="grid grid-cols-[2.5fr_1fr_0.7fr_0.8fr_0.9fr] gap-4 px-4 py-3 bg-surface border-b border-line text-[10.5px] font-mono tracking-[0.14em] uppercase text-muted">
+                <span>Document</span>
+                <span>Type</span>
+                <span>Citations</span>
+                <span>Status</span>
+                <span className="text-right">Updated</span>
               </div>
-              <div className="flex items-center justify-between gap-3 text-[12px] text-muted">
-                <div className="flex items-center gap-3">
-                  <span className="text-ink-soft">{d.type}</span>
-                  <span aria-hidden className="opacity-50">·</span>
-                  <span className="font-mono">{d.citations} cites</span>
-                  <span aria-hidden className="opacity-50">·</span>
-                  <StatusBadge status={d.status} />
-                </div>
-                <span className="font-mono text-[11.5px]">{d.updated}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+              {items.map((d) => (
+                <Link
+                  key={`${d.kind}-${d.id}`}
+                  href={d.href}
+                  className="grid grid-cols-[2.5fr_1fr_0.7fr_0.8fr_0.9fr] gap-4 px-4 py-4 border-b border-line-soft no-underline text-ink hover:bg-surface transition-colors items-baseline"
+                >
+                  <span className="font-serif text-[15px] text-ink truncate">
+                    {d.title}
+                  </span>
+                  <span className="text-[13px] text-ink-soft">{d.type}</span>
+                  <span className="text-[13px] font-mono text-ink-soft">
+                    {d.citations ?? ""}
+                  </span>
+                  <span>
+                    {d.kind === "chat" ? (
+                      <ChatBadge />
+                    ) : d.status ? (
+                      <StatusBadge status={d.status} />
+                    ) : null}
+                  </span>
+                  <span className="text-[12.5px] text-muted text-right font-mono tracking-[0.02em]">
+                    {relativeTimePH(d.updated_at)}
+                  </span>
+                </Link>
+              ))}
+            </div>
 
-        <p className="mt-6 text-[12px] text-muted italic">
-          Verify with the source decision before relying on this in pleadings.
-        </p>
+            {/* Mobile cards */}
+            <div className="md:hidden border-t border-line">
+              {items.map((d) => (
+                <Link
+                  key={`${d.kind}-${d.id}`}
+                  href={d.href}
+                  className="block px-4 py-4 border-b border-line-soft no-underline text-ink hover:bg-surface transition-colors"
+                >
+                  <div className="font-serif text-[15px] text-ink mb-2 leading-[1.35]">
+                    {d.title}
+                  </div>
+                  <div className="flex items-center justify-between gap-3 text-[12px] text-muted">
+                    <div className="flex items-center gap-3">
+                      <span className="text-ink-soft">{d.type}</span>
+                      {d.citations !== null && (
+                        <>
+                          <span aria-hidden className="opacity-50">·</span>
+                          <span className="font-mono">{d.citations} cites</span>
+                        </>
+                      )}
+                      <span aria-hidden className="opacity-50">·</span>
+                      {d.kind === "chat" ? (
+                        <ChatBadge />
+                      ) : d.status ? (
+                        <StatusBadge status={d.status} />
+                      ) : null}
+                    </div>
+                    <span className="font-mono text-[11.5px]">
+                      {relativeTimePH(d.updated_at)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <p className="mt-6 text-[12px] text-muted italic">
+              Verify with the source decision before relying on this in
+              pleadings.
+            </p>
+          </>
+        )}
       </div>
     </>
   );
 }
 
-function FilterChip({
-  children,
-  active,
-}: {
-  children: React.ReactNode;
-  active?: boolean;
-}) {
+function EmptyState() {
   return (
-    <span
-      className={`px-3 py-[5px] border rounded-[2px] text-[12px] cursor-pointer transition-colors ${
-        active
-          ? "border-ink text-ink bg-surface"
-          : "border-line text-muted hover:border-ink hover:text-ink"
-      }`}
-    >
-      {children}
-    </span>
+    <div className="border border-dashed border-line px-6 py-12 sm:py-16 text-center">
+      <h2
+        className="font-serif text-[22px] sm:text-[26px] font-normal m-0 mb-3"
+        style={{ letterSpacing: "-0.015em" }}
+      >
+        Nothing here yet.
+      </h2>
+      <p className="text-[14px] text-ink-soft m-0 mb-6 max-w-[420px] mx-auto leading-[1.55]">
+        Your Q&amp;A threads and drafted documents will show up here as you
+        work. Start with a question or a template.
+      </p>
+      <div className="flex items-center justify-center gap-3 flex-wrap">
+        <Link href="/chat" className="no-underline">
+          <BtnPrimary small>Ask a question →</BtnPrimary>
+        </Link>
+        <Link
+          href="/draft/new"
+          className="text-[13px] text-accent no-underline font-mono tracking-[0.04em]"
+        >
+          Or draft something →
+        </Link>
+      </div>
+    </div>
   );
 }

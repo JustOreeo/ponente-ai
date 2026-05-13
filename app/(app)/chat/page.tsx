@@ -11,14 +11,9 @@ export default function ChatPage() {
     <>
       <Topbar
         crumbs={[
-          { label: "Chat", href: "/chat" },
-          { label: "Advance rent under R.A. 9653" },
+          { label: "Library", href: "/library" },
+          { label: "New chat" },
         ]}
-        right={
-          <span className="font-mono text-[10.5px] text-muted tracking-[0.06em]">
-            3 / 5 today
-          </span>
-        }
       />
       <ChatWorkspace />
     </>
