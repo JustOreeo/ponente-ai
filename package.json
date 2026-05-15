@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ingest:codes": "tsx scripts/ingest-codes.ts",
+    "scrape:codes": "tsx scripts/scrape-codes.ts",
+    "ingest:codes": "tsx --env-file=.env.local scripts/ingest-codes.ts",
     "test:corpus": "tsx scripts/test-corpus.ts",
     "seed:users": "tsx --env-file=.env.local scripts/seed-users.ts"
   },

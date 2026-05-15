@@ -306,7 +306,7 @@ async function main() {
   let files: string[];
   try {
     const all = await readdir(CORPUS_DIR);
-    files = all.filter((f) => f.endsWith(".md"));
+    files = all.filter((f) => f.endsWith(".md") && f.toLowerCase() !== "readme.md");
   } catch {
     console.error(
       `corpus/ directory not found at ${CORPUS_DIR}. Create it and add .md files. See scripts/ingest-codes.ts header for format.`,
